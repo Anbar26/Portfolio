@@ -1,8 +1,9 @@
+@import url("https://fonts.googleapis.com/css2?family=Gambarino&display=swap");
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #0d0812;
+  --foreground: #f0e4ef;
 }
 
 @theme inline {
@@ -10,17 +11,40 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+  --font-serif: var(--font-playfair), Georgia, serif;
+  --font-display: var(--font-dirtyline), Georgia, serif;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html {
+  scroll-behavior: smooth;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-geist-sans), Arial, sans-serif;
+}
+
+
+/* Dot grid pattern for sections */
+.dot-grid {
+  background-image: radial-gradient(circle, #f9a8c9 1px, transparent 1px);
+  background-size: 28px 28px;
+}
+
+/* Mesh gradient blobs */
+.mesh-bg {
+  background-color: #fff;
+  background-image:
+    radial-gradient(ellipse 80% 50% at 10% 20%, rgba(251, 207, 232, 0.45) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 60% at 90% 80%, rgba(253, 164, 175, 0.3) 0%, transparent 55%),
+    radial-gradient(ellipse 50% 40% at 60% 10%, rgba(252, 231, 243, 0.5) 0%, transparent 50%);
+}
+
+.mesh-bg-rose {
+  background-color: #fff5f7;
+  background-image:
+    radial-gradient(ellipse 70% 50% at 90% 10%, rgba(251, 207, 232, 0.5) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 60% at 5% 80%, rgba(253, 164, 175, 0.25) 0%, transparent 55%),
+    radial-gradient(ellipse 40% 40% at 50% 50%, rgba(252, 231, 243, 0.35) 0%, transparent 50%);
 }
