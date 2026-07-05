@@ -9,6 +9,11 @@ import ScrollSmoother from "gsap/ScrollSmoother";
 import { ScrollToPlugin } from "gsap/all";
 gsap.registerPlugin(ScrollTrigger, ScrollSmoother, ScrollToPlugin);
 import { Mail, Github, Linkedin, Check, ExternalLink } from "lucide-react";
+import {
+  siPytorch, siTensorflow, siKeras, siScikitlearn, siOpencv, siHuggingface,
+  siPython, siTypescript, siJavascript, siR, siPostgresql, siPandas, siNumpy, siGit,
+  siGooglecloud, siDocker, siKubernetes, siMlflow, siJupyter,
+} from "simple-icons";
 import AnbarAlthafLogo from "./AnbarAlthafLogo";
 
 function SectionHeading({ title }: { title: string }) {
@@ -326,11 +331,15 @@ const projects = [
     tags: ["Python", "FastAPI", "PyTorch", "Next.js"],
     href: "#",
     accent: {
-      panel: "from-rose-100 via-pink-50 to-white",
+      panel: "from-rose-200 via-rose-50 to-white",
       dot: "bg-rose-400",
       number: "text-rose-300",
       tag: "bg-rose-50/80 border-rose-200 text-rose-800",
-      blob: "bg-rose-200/50",
+      blob: "bg-rose-300/50",
+      text: "text-rose-500",
+      border: "border-rose-300",
+      glow: "shadow-rose-200/60",
+      tint: "bg-rose-50/60",
     },
   },
   {
@@ -341,11 +350,15 @@ const projects = [
     tags: ["PyTorch", "Transformers", "Quantization"],
     href: "#",
     accent: {
-      panel: "from-amber-100 via-amber-50 to-white",
+      panel: "from-amber-200 via-amber-50 to-white",
       dot: "bg-amber-400",
       number: "text-amber-300",
       tag: "bg-amber-50/80 border-amber-200 text-amber-800",
-      blob: "bg-amber-200/50",
+      blob: "bg-amber-300/50",
+      text: "text-amber-500",
+      border: "border-amber-300",
+      glow: "shadow-amber-200/60",
+      tint: "bg-amber-50/60",
     },
   },
   {
@@ -356,11 +369,15 @@ const projects = [
     tags: ["Python", "Ollama", "Chrome Extension"],
     href: "#",
     accent: {
-      panel: "from-teal-100 via-teal-50 to-white",
+      panel: "from-teal-200 via-teal-50 to-white",
       dot: "bg-teal-400",
       number: "text-teal-300",
       tag: "bg-teal-50/80 border-teal-200 text-teal-800",
-      blob: "bg-teal-200/50",
+      blob: "bg-teal-300/50",
+      text: "text-teal-500",
+      border: "border-teal-300",
+      glow: "shadow-teal-200/60",
+      tint: "bg-teal-50/60",
     },
   },
   {
@@ -371,11 +388,15 @@ const projects = [
     tags: ["Kafka", "ClickHouse", "Redis", "TypeScript"],
     href: "#",
     accent: {
-      panel: "from-violet-100 via-violet-50 to-white",
+      panel: "from-violet-200 via-violet-50 to-white",
       dot: "bg-violet-400",
       number: "text-violet-300",
       tag: "bg-violet-50/80 border-violet-200 text-violet-800",
-      blob: "bg-violet-200/50",
+      blob: "bg-violet-300/50",
+      text: "text-violet-500",
+      border: "border-violet-300",
+      glow: "shadow-violet-200/60",
+      tint: "bg-violet-50/60",
     },
   },
   {
@@ -386,11 +407,15 @@ const projects = [
     tags: ["FastAPI", "Kubernetes", "Playwright", "React"],
     href: "#",
     accent: {
-      panel: "from-sky-100 via-sky-50 to-white",
+      panel: "from-sky-200 via-sky-50 to-white",
       dot: "bg-sky-400",
       number: "text-sky-300",
       tag: "bg-sky-50/80 border-sky-200 text-sky-800",
-      blob: "bg-sky-200/50",
+      blob: "bg-sky-300/50",
+      text: "text-sky-500",
+      border: "border-sky-300",
+      glow: "shadow-sky-200/60",
+      tint: "bg-sky-50/60",
     },
   },
   {
@@ -401,11 +426,15 @@ const projects = [
     tags: ["Python", "Whisper", "Pandas"],
     href: "#",
     accent: {
-      panel: "from-emerald-100 via-emerald-50 to-white",
+      panel: "from-emerald-200 via-emerald-50 to-white",
       dot: "bg-emerald-400",
       number: "text-emerald-300",
       tag: "bg-emerald-50/80 border-emerald-200 text-emerald-800",
-      blob: "bg-emerald-200/50",
+      blob: "bg-emerald-300/50",
+      text: "text-emerald-500",
+      border: "border-emerald-300",
+      glow: "shadow-emerald-200/60",
+      tint: "bg-emerald-50/60",
     },
   },
   {
@@ -416,14 +445,87 @@ const projects = [
     tags: ["Python", "FastAPI", "React", "TypeScript"],
     href: "https://github.com/Anbar26/Maze_Solver",
     accent: {
-      panel: "from-indigo-100 via-indigo-50 to-white",
+      panel: "from-indigo-200 via-indigo-50 to-white",
       dot: "bg-indigo-400",
       number: "text-indigo-300",
       tag: "bg-indigo-50/80 border-indigo-200 text-indigo-800",
-      blob: "bg-indigo-200/50",
+      blob: "bg-indigo-300/50",
+      text: "text-indigo-500",
+      border: "border-indigo-300",
+      glow: "shadow-indigo-200/60",
+      tint: "bg-indigo-50/60",
     },
   },
 ];
+
+// AWS was removed from simple-icons over branding — use a filled cloud glyph in AWS orange.
+const awsIcon = {
+  title: "AWS",
+  hex: "FF9900",
+  path: "M6.5 20q-2.28 0-3.89-1.57Q1 16.85 1 14.58q0-1.95 1.17-3.48Q3.35 9.57 5.25 9.15q.63-2.3 2.5-3.72Q9.63 4 12 4q2.93 0 4.96 2.04Q19 6.07 19 9q1.73.2 2.86 1.5Q23 11.79 23 13.5q0 1.87-1.31 3.19Q20.37 18 18.5 18H6.5Z",
+};
+
+type Glyph = { title: string; hex: string; path: string };
+
+const skillGroups: { title: string; items: { icon: Glyph; label: string }[] }[] = [
+  {
+    title: "Machine Learning & AI",
+    items: [
+      { icon: siPytorch, label: "PyTorch" },
+      { icon: siTensorflow, label: "TensorFlow" },
+      { icon: siKeras, label: "Keras" },
+      { icon: siScikitlearn, label: "scikit-learn" },
+      { icon: siOpencv, label: "OpenCV" },
+      { icon: siHuggingface, label: "Hugging Face" },
+    ],
+  },
+  {
+    title: "Programming & Data",
+    items: [
+      { icon: siPython, label: "Python" },
+      { icon: siTypescript, label: "TypeScript" },
+      { icon: siJavascript, label: "JavaScript" },
+      { icon: siR, label: "R" },
+      { icon: siPostgresql, label: "SQL" },
+      { icon: siPandas, label: "pandas" },
+      { icon: siNumpy, label: "NumPy" },
+      { icon: siGit, label: "Git" },
+    ],
+  },
+  {
+    title: "Platforms & Tools",
+    items: [
+      { icon: awsIcon, label: "AWS" },
+      { icon: siGooglecloud, label: "GCP" },
+      { icon: siDocker, label: "Docker" },
+      { icon: siKubernetes, label: "Kubernetes" },
+      { icon: siMlflow, label: "MLflow" },
+      { icon: siJupyter, label: "Jupyter" },
+    ],
+  },
+];
+
+function SkillTile({ icon, label }: { icon: Glyph; label: string }) {
+  return (
+    <motion.div
+      whileHover={{ y: -4 }}
+      style={{ "--brand": `#${icon.hex}` } as React.CSSProperties}
+      className="group flex flex-col items-center justify-center gap-3 w-[7rem] px-4 py-5 rounded-2xl border border-rose-200/80 bg-white/70 shadow-sm hover:bg-white hover:border-rose-300 hover:shadow-lg hover:shadow-rose-100/60 transition-all duration-300 cursor-default"
+    >
+      <svg
+        role="img"
+        viewBox="0 0 24 24"
+        aria-label={icon.title}
+        className="w-8 h-8 fill-current [color:var(--brand)]"
+      >
+        <path d={icon.path} />
+      </svg>
+      <span className="text-xs font-light text-center leading-tight text-[#5c1a2e]/55 group-hover:text-[#5c1a2e] transition-colors duration-300">
+        {label}
+      </span>
+    </motion.div>
+  );
+}
 
 type ProjectItem = (typeof projects)[number];
 
@@ -444,14 +546,14 @@ function ProjectsShowcase() {
               onMouseEnter={() => setActive(i)}
               className={`group relative text-left rounded-2xl border px-5 py-4 transition-all duration-300 cursor-pointer ${
                 isActive
-                  ? "border-rose-300 bg-white shadow-lg shadow-rose-200/40"
+                  ? `${p.accent.border} ${p.accent.tint} shadow-lg ${p.accent.glow}`
                   : "border-rose-100 bg-white/50 hover:bg-white hover:border-rose-200"
               }`}
             >
               <div className="flex items-center gap-4">
                 <span
                   className={`font-serif text-2xl font-bold leading-none transition-colors duration-300 ${
-                    isActive ? "text-[#5c1a2e]/70" : "text-rose-300/70"
+                    isActive ? p.accent.text : "text-rose-300/70"
                   }`}
                 >
                   {String(i + 1).padStart(2, "0")}
@@ -469,7 +571,7 @@ function ProjectsShowcase() {
                 </div>
                 {/* active indicator */}
                 <span
-                  className={`ml-auto text-rose-400 transition-all duration-300 ${
+                  className={`ml-auto transition-all duration-300 ${p.accent.text} ${
                     isActive ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-2"
                   }`}
                 >
@@ -1106,28 +1208,22 @@ export default function Home() {
         });
       }
 
-      // ── Skills — pin while pills animate in ──────────────────
-      const skillsTl = gsap.timeline({
-        scrollTrigger: {
-          trigger: "#skills",
-          start: "top top",
-          end: "+=100%",
-          pin: true,
-          scrub: 1,
-          anticipatePin: 1,
-        },
-      });
-      gsap.utils.toArray<Element>(".skills-row").forEach((row, ri) => {
+      // ── Skills — reveal each row on scroll, then leave visible ──
+      gsap.utils.toArray<Element>(".skills-row").forEach((row) => {
         const pills = (row as Element).querySelectorAll(":scope > *");
-        skillsTl.from(pills, {
-          x: (i) => (i % 2 === 0 ? -50 : 50),
+        gsap.from(pills, {
+          scrollTrigger: {
+            trigger: row,
+            start: "top 85%",
+            toggleActions: "play none none none",
+          },
+          y: 24,
           opacity: 0,
           stagger: 0.06,
-          ease: "none",
-          duration: 0.3,
-        }, ri * 0.3);
+          duration: 0.5,
+          ease: "power2.out",
+        });
       });
-      skillsTl.to({}, { duration: 0.3 });
 
       ScrollTrigger.refresh();
     });
@@ -1537,24 +1633,14 @@ export default function Home() {
         <div className="max-w-5xl mx-auto">
           <div className="gs-up"><SectionHeading title="Skills" /></div>
           <div className="space-y-16">
-            {[
-              { title: "Machine Learning", skills: ["TensorFlow", "PyTorch", "Scikit-learn", "Neural Networks", "Computer Vision", "NLP"] },
-              { title: "Programming",      skills: ["Python", "TypeScript", "JavaScript", "R", "SQL", "Git"] },
-              { title: "Platforms & Tools",skills: ["AWS", "GCP", "Docker", "Kubernetes", "MLflow", "Jupyter"] },
-            ].map((category) => (
+            {skillGroups.map((category) => (
               <div key={category.title}>
-                <p className="gs-up text-xs tracking-[0.35em] uppercase text-rose-400/70 font-light mb-5 text-center">
+                <p className="gs-up text-xs tracking-[0.35em] uppercase text-rose-400/70 font-light mb-6 text-center">
                   {category.title}
                 </p>
-                <div className="skills-row flex flex-wrap justify-center gap-3">
-                  {category.skills.map((skill) => (
-                    <motion.div
-                      key={skill}
-                      whileHover={{ scale: 1.08, y: -3 }}
-                      className="px-5 py-2.5 rounded-2xl border border-rose-200 bg-rose-50/60 text-rose-800 text-sm font-light shadow-sm hover:border-rose-400 hover:shadow-rose-200 hover:shadow-md transition-shadow duration-300 cursor-default"
-                    >
-                      {skill}
-                    </motion.div>
+                <div className="skills-row flex flex-wrap justify-center gap-3 md:gap-4">
+                  {category.items.map((item) => (
+                    <SkillTile key={item.label} icon={item.icon} label={item.label} />
                   ))}
                 </div>
               </div>
