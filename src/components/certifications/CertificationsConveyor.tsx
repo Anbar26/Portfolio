@@ -108,6 +108,23 @@ const TAIL_BEATS = 0;
 const SCENE_VH = 0.9;
 const SCENE_PULL_UP = `calc(-100vh - ${SCENE_VH * 100}vh)`;
 
+/**
+ * THE SCENE CHANGE OUT TO SKILLS
+ *
+ * The belt was never the whole section. The readout (top-left) and the caption
+ * (bottom-right — "COMPLETED / Illinois") are pinned chrome that sat still while
+ * the plates left, so the last thing on screen before Skills arrived was a
+ * stranded issuer name. They belong to the scene and have to leave with it.
+ *
+ * They clear ahead of the last plate rather than alongside it. The plates cross
+ * the whole stage on their way out; the chrome only has to cross its own margin,
+ * so starting them together would leave the chrome gone far too early or the
+ * belt still running long after. Ending at CHROME_GONE_AT — before the pin hands
+ * over — is what guarantees an empty stage for the Skills entrance.
+ */
+const CHROME_GONE_AT = 0.93;
+const CHROME_EXIT_LEN = 0.17;
+
 export default function CertificationsConveyor() {
   const count = certifications.length;
   const reduced = usePrefersReducedMotion();
@@ -315,11 +332,44 @@ export default function CertificationsConveyor() {
             sceneLen
           );
 
+          /*
+           * The chrome leaves with the belt. Each block goes out through the
+           * edge it already hugs — the readout left, the caption right — so
+           * neither tracks back across the stage on its way out.
+           *
+           * autoAlpha is what actually guarantees the stage is clear: it ends on
+           * visibility:hidden, so these are gone even on a viewport where the
+           * travel alone would not clear the frame. The movement is there so
+           * they read as leaving rather than blinking out. Being part of the
+           * scrubbed timeline, scrolling back up brings them in again for free.
+           */
+          const chromeAt = CHROME_GONE_AT - CHROME_EXIT_LEN;
+          const readout = scene?.querySelector<HTMLElement>(".cert-readout");
+          const caption = scene?.querySelector<HTMLElement>(".cert-caption");
+          if (readout) {
+            scrubber.to(
+              readout,
+              { x: "-45vw", autoAlpha: 0, ease: "power2.in", duration: CHROME_EXIT_LEN },
+              chromeAt
+            );
+          }
+          if (caption) {
+            scrubber.to(
+              caption,
+              { x: "45vw", autoAlpha: 0, ease: "power2.in", duration: CHROME_EXIT_LEN },
+              chromeAt
+            );
+          }
+
           return () => {
             scrubber.scrollTrigger?.kill();
             scrubber.kill();
             belt.kill();
             gsap.set(slides, { clearProps: "all" });
+            // Otherwise a breakpoint change mid-exit strands the chrome on
+            // visibility:hidden and it never comes back.
+            const chrome = [readout, caption].filter(Boolean) as HTMLElement[];
+            if (chrome.length) gsap.set(chrome, { clearProps: "all" });
           };
         }
       );
@@ -427,7 +477,7 @@ export default function CertificationsConveyor() {
         <SectionHeading title="Certifications" />
 
         {/* Position readout — top-left, where the belt never reaches */}
-        <div className="absolute left-8 lg:left-14 top-28 z-20 pointer-events-none flex flex-col gap-3">
+        <div className="cert-chrome cert-readout absolute left-8 lg:left-14 top-28 z-20 pointer-events-none flex flex-col gap-3">
           <span className="font-serif text-sm text-[#5c1a2e]/50 tabular-nums">
             {String(active + 1).padStart(2, "0")}
             <span className="text-[#5c1a2e]/25"> / {String(count).padStart(2, "0")}</span>
@@ -463,7 +513,7 @@ export default function CertificationsConveyor() {
 
         {/* Caption — scramble-decodes to the issuer of whichever panel holds the
             front slot, like the reference's bottom-right title. */}
-        <div className="absolute right-8 lg:right-14 bottom-16 z-20 pointer-events-none text-right">
+        <div className="cert-chrome cert-caption absolute right-8 lg:right-14 bottom-16 z-20 pointer-events-none text-right">
           <p className="text-[10px] tracking-[0.35em] uppercase text-rose-400/70 font-light mb-1">
             {certifications[active].status}
           </p>
