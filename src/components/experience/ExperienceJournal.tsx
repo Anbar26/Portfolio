@@ -43,6 +43,18 @@ const Z = {
   lace: 7,
 } as const;
 
+/*
+ * `drift` is the travel in px and `duration` one leg of it, both per sticker.
+ *
+ * The durations sit between 1.4s and 2.3s because slower stopped reading as
+ * movement at all: 5px over 5.2s is under a pixel a second, which is real but
+ * imperceptible, and the section looked static. Around 2s the same few pixels
+ * are noticeable without becoming busy.
+ *
+ * They stay deliberately uneven — the ear for this is the same as for a wind
+ * chime, where matched intervals sound mechanical. No two are a neat multiple
+ * of each other, so the group never resolves into a single beat.
+ */
 const STICKERS: StickerSpec[] = [
   {
     src: "/journal/sticker-vine.png",
@@ -51,7 +63,7 @@ const STICKERS: StickerSpec[] = [
     width: 17.6,
     z: Z.vine,
     drift: 4,
-    duration: 4.2,
+    duration: 2.1,
   },
   {
     src: "/journal/sticker-star-silver.png",
@@ -61,7 +73,7 @@ const STICKERS: StickerSpec[] = [
     rotate: -18,
     z: Z.starSilver,
     drift: 5,
-    duration: 3.4,
+    duration: 1.7,
     delay: 0.3,
   },
   {
@@ -71,7 +83,7 @@ const STICKERS: StickerSpec[] = [
     width: 17.1,
     z: Z.starPink,
     drift: 6,
-    duration: 2.8,
+    duration: 1.9,
     delay: 0.9,
   },
   {
@@ -81,7 +93,7 @@ const STICKERS: StickerSpec[] = [
     width: 25.8,
     z: Z.bow,
     drift: 5,
-    duration: 3.8,
+    duration: 1.4,
     delay: 0.5,
   },
   {
@@ -91,7 +103,7 @@ const STICKERS: StickerSpec[] = [
     width: 30.3,
     z: Z.blossom,
     drift: 4,
-    duration: 4.6,
+    duration: 2.0,
     delay: 1.2,
   },
   {
@@ -104,7 +116,7 @@ const STICKERS: StickerSpec[] = [
     height: 33.9,
     z: Z.lace,
     drift: 3,
-    duration: 5.2,
+    duration: 2.3,
     delay: 0.7,
   },
 ];
