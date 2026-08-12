@@ -4,6 +4,7 @@ import localFont from "next/font/local";
 import "./globals.css";
 import SmoothScroll from "@/components/SmoothScroll";
 import SiteBackground from "@/components/SiteBackground";
+import AskAboutMe from "@/components/chat/AskAboutMe";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -59,6 +60,10 @@ export default function RootLayout({
       <body className="min-h-full flex flex-col">
         <SiteBackground />
         <SmoothScroll>{children}</SmoothScroll>
+        {/* Outside <SmoothScroll> on purpose: #smooth-content is permanently
+            transformed, and `position: fixed` inside a transformed ancestor is
+            fixed to that ancestor, not the viewport. */}
+        <AskAboutMe />
       </body>
     </html>
   );

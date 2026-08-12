@@ -42,7 +42,7 @@ const HERO_DRAW_VH = 2.5;
  * can't reliably hold a full card; those screens get a plain stacked list.
  */
 
-const EMAIL = "anbaralthaf26@gmail.com";
+import { ABOUT_INTRO, ABOUT_TAGS, EMAIL } from "@/data/about";
 
 export default function Home() {
   // Mobile island nav
@@ -610,12 +610,10 @@ export default function Home() {
             ))}
           </h2>
           <div className="about-body" style={{ color: "rgba(255,255,255,0.9)", fontSize: "1.05rem", lineHeight: 1.7, fontWeight: 300 }}>
-            <p style={{ marginBottom: 18 }}>
-              {"I'm a Computer Science student focused on AI & Machine Learning. I spend most of my time on feature pipelines, data infrastructure, and how systems hold up once they're running. That's where I've found the interesting problems tend to live. "}
-            </p>
+            <p style={{ marginBottom: 18 }}>{ABOUT_INTRO}</p>
           </div>
           <div className="about-body" style={{ display: "flex", flexWrap: "wrap", gap: 10, paddingTop: 28 }}>
-            {["Machine Learning", "Deep Learning", "AI Systems", "Data", "Research"].map((tag) => (
+            {ABOUT_TAGS.map((tag) => (
               <span
                 key={tag}
                 style={{
