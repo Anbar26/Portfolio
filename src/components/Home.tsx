@@ -1,7 +1,8 @@
 "use client";
 
 import { motion, useMotionValue } from "framer-motion";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore } from "react";
+import { createPortal } from "react-dom";
 import gsap from "gsap";
 import ScrollTrigger from "gsap/ScrollTrigger";
 import ScrollSmoother from "gsap/ScrollSmoother";
@@ -64,6 +65,16 @@ export default function Home() {
   const [aboutOpen, setAboutOpen] = useState(false);
   const [overlayVisible, setOverlayVisible] = useState(false);
   const aboutTlRef = useRef<gsap.core.Timeline | null>(null);
+
+  // The overlay is portaled to <body>, so it can only exist once we're on the
+  // client. Server-rendered markup has no portal, hence the mount gate.
+  // useSyncExternalStore rather than an effect: it reports false through SSR and
+  // hydration and true afterwards, without a setState-in-effect render cascade.
+  const mounted = useSyncExternalStore(
+    () => () => {},
+    () => true,
+    () => false,
+  );
 
   const reducedMotion = usePrefersReducedMotion();
 
@@ -323,14 +334,27 @@ export default function Home() {
     return () => document.removeEventListener("keydown", onKey);
   }, [navOpen]);
 
-  // About overlay — body scroll lock when open
+  // About overlay — hold the page still while it is open.
+  //
+  // `body { overflow: hidden }` does nothing here: ScrollSmoother runs its own
+  // scroller, so the page kept moving underneath the overlay and carried the
+  // close button off screen with it. Pausing the smoother is what actually
+  // stops it. The overflow lock stays as the fallback for the reduced-motion
+  // path, where no smoother is created at all.
   useEffect(() => {
-    document.body.style.overflow = aboutOpen ? "hidden" : "";
-    return () => { document.body.style.overflow = ""; };
+    const smoother = ScrollSmoother.get();
+    if (smoother) smoother.paused(aboutOpen);
+    else document.body.style.overflow = aboutOpen ? "hidden" : "";
+    return () => {
+      ScrollSmoother.get()?.paused(false);
+      document.body.style.overflow = "";
+    };
   }, [aboutOpen]);
 
-  // About overlay — build path morph + char fly-in timeline once
+  // About overlay — build path morph + char fly-in timeline once.
+  // Waits for `mounted`, because the elements it animates live in the portal.
   useEffect(() => {
+    if (!mounted) return;
     const path = document.querySelector<SVGPathElement>(".about-path");
     if (!path) return;
 
@@ -358,7 +382,7 @@ export default function Home() {
 
     aboutTlRef.current = tl;
     return () => { tl.kill(); };
-  }, []);
+  }, [mounted]);
 
   // About overlay — play / reverse on toggle
   useEffect(() => {
@@ -501,7 +525,16 @@ export default function Home() {
         </div>
       </div>
 
-      {/* ABOUT REVEAL OVERLAY — path morph + char fly-in */}
+      {/*
+        ABOUT REVEAL OVERLAY — path morph + char fly-in.
+
+        Portaled to <body> on purpose. Rendered in place it would sit inside
+        #smooth-content, which ScrollSmoother keeps transformed — and a
+        transformed ancestor becomes the containing block for `position: fixed`,
+        so the whole overlay scrolled away with the page and took the close
+        button with it. Out here, fixed means fixed to the viewport again.
+      */}
+      {mounted && createPortal(
       <div
         style={{
           position: "fixed",
@@ -600,7 +633,8 @@ export default function Home() {
             ))}
           </div>
         </div>
-      </div>
+      </div>,
+      document.body)}
 
       {/* Hero */}
       {/* The section is now just the trigger — it grows to hold the pin's scroll
