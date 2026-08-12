@@ -17,21 +17,51 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 /**
- * Overridable because Google retires and renames models on its own schedule,
- * and a 404 from a stale name should be a one-line env change rather than a
- * redeploy of new code. `curl -H "x-goog-api-key: $KEY" \
- * https://generativelanguage.googleapis.com/v1beta/models` lists what a key
- * can actually reach.
+ * Overridable because Google retires models on its own schedule — 2.5-flash was
+ * refused for new keys within a day of being set here — and a 404 from a stale
+ * name should be a one-line env change, not a code change.
+ *
+ * Note that ListModels is not a reliable check: it still advertises models a
+ * given key is not allowed to call. The only real test is a generateContent
+ * request, which is what `.env.example` documents.
+ *
+ * `gemini-flash-latest` is the set-and-forget alternative: it never 404s,
+ * at the cost of Google moving it under you. Pinned here instead so answer
+ * style only changes when someone decides it should.
+ *
+ * A LITE model, not the full flash, and the reason is the free tier's daily
+ * cap rather than cost or speed: gemini-3.6-flash allows 20 requests A DAY,
+ * shared across every visitor to the site. Twenty questions and the assistant
+ * is done until tomorrow. The lite tier is the one with a quota a public page
+ * can actually run on.
  */
-const MODEL = process.env.GEMINI_MODEL || "gemini-2.5-flash";
+const MODEL = process.env.GEMINI_MODEL || "gemini-3.1-flash-lite";
 const ENDPOINT = (m: string) =>
   `https://generativelanguage.googleapis.com/v1beta/models/${m}:generateContent`;
 
-const MAX_TOKENS = 500;
+/**
+ * Has to cover the model's reasoning as well as the reply.
+ *
+ * Gemini 3.x thinks before it answers and both come out of this one budget. At
+ * 500 the model spent 480 tokens thinking, emitted 16, and returned a fragment
+ * of its own reasoning as the answer — visitors saw "formatting/bold if any).
+ * No emoji? Yes." A short reply needs a fraction of 1500; the headroom is for
+ * the thinking in front of it.
+ */
+const MAX_TOKENS = 1500;
 
 /** Ceilings on what a visitor can push through a public endpoint. */
 const MAX_MESSAGES = 16;
-const MAX_CHARS = 800;
+/** What a visitor may type. Matches the input's own maxLength. */
+const MAX_USER_CHARS = 800;
+/**
+ * What the assistant may have said. Necessarily larger: the thread is replayed
+ * on every turn, and a listing answer runs well past a question's length.
+ * Capping both at 800 rejected the entire follow-up as soon as one reply was
+ * long — asking "which one uses reinforcement learning?" after a list of
+ * projects returned a 400 and looked, from the outside, like the model failing.
+ */
+const MAX_ASSISTANT_CHARS = 4000;
 const WINDOW_MS = 10 * 60 * 1000;
 const MAX_PER_WINDOW = 25;
 
@@ -107,7 +137,8 @@ function validate(body: unknown): Msg[] | null {
     if (role !== "user" && role !== "assistant") return null;
     if (typeof content !== "string") return null;
     const trimmed = content.trim();
-    if (!trimmed || trimmed.length > MAX_CHARS) return null;
+    const limit = role === "user" ? MAX_USER_CHARS : MAX_ASSISTANT_CHARS;
+    if (!trimmed || trimmed.length > limit) return null;
     out.push({ role, content: trimmed });
   }
   if (out[out.length - 1].role !== "user") return null;
@@ -168,11 +199,30 @@ export async function POST(req: Request) {
           maxOutputTokens: MAX_TOKENS,
           // Low, not zero: this is recall, not creative writing.
           temperature: 0.3,
+          // Looking an answer up in a short document needs very little
+          // deliberation, and thinking is billed against MAX_TOKENS and the
+          // free tier's token quota. Measured at roughly a third of the
+          // thinking of the default. It cannot be switched off entirely on
+          // this model — thinkingBudget: 0 is rejected as invalid.
+          thinkingConfig: { thinkingLevel: "low" },
         },
       }),
       signal: AbortSignal.timeout(30_000),
     });
 
+    /*
+     * The free tier allows only a handful of requests a minute across every
+     * visitor at once, so this is a normal thing to hit rather than a fault.
+     * Worth its own message: "try again" invites an immediate retry, which
+     * fails again.
+     */
+    if (res.status === 429) {
+      console.error("[chat] upstream rate limit");
+      return NextResponse.json(
+        { error: "I'm getting a lot of questions right now — give me a moment and ask again." },
+        { status: 429 }
+      );
+    }
     if (!res.ok) return fail(502, `${res.status} ${await res.text()}`);
 
     const data = await res.json();
@@ -182,14 +232,28 @@ export async function POST(req: Request) {
       return fail(502, `blocked: ${data.promptFeedback.blockReason}`);
     }
 
-    const reply = (data?.candidates?.[0]?.content?.parts ?? [])
+    const candidate = data?.candidates?.[0];
+
+    /*
+     * Reasoning comes back in the same parts array, flagged `thought`. Dropping
+     * those is what keeps the model's working out from reaching a visitor.
+     */
+    const reply = (candidate?.content?.parts ?? [])
+      .filter((p: { thought?: boolean }) => !p?.thought)
       .map((p: { text?: string }) => p?.text ?? "")
       .join("")
       .trim();
 
-    if (!reply) {
-      return fail(502, `empty completion (finishReason: ${data?.candidates?.[0]?.finishReason})`);
+    /*
+     * Cut off mid-thought, whatever text exists is a fragment of the reasoning
+     * rather than an answer. Better to show the generic error than to publish
+     * that — this is the exact failure the 500-token budget produced.
+     */
+    if (candidate?.finishReason === "MAX_TOKENS") {
+      return fail(502, `truncated before answering (thoughts: ${data?.usageMetadata?.thoughtsTokenCount})`);
     }
+    if (!reply) return fail(502, `empty completion (finishReason: ${candidate?.finishReason})`);
+
     return NextResponse.json({ reply });
   } catch (err) {
     return fail(502, err);
