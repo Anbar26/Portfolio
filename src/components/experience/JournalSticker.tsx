@@ -36,10 +36,17 @@ export type StickerSpec = {
 /**
  * One sticker on the spread.
  *
- * Two nested elements on purpose: the outer one holds the layout (position and
- * resting tilt, written once from the spec) and the inner one is all GSAP ever
- * touches. So the drift is a plain translate on an untransformed element and
- * can never fight the tilt or accumulate against it — and the tilt survives a
+ * Two nested elements, and the order of them is the whole trick: the OUTER box
+ * holds the position and is the only thing GSAP touches, while the resting tilt
+ * sits on the INNER one.
+ *
+ * It has to be that way round. A child of a rotated element inherits its parent's
+ * rotated axes, so `x` on a sticker tilted -18deg would send it off at -18deg —
+ * a diagonal drift, which is exactly what this must not do. With the tilt
+ * underneath, the translate happens in screen space and the movement is purely
+ * horizontal no matter how the artwork is angled.
+ *
+ * Keeping the tilt in markup rather than in the tween also means it survives a
  * reduced-motion visit, where no tween is ever created.
  */
 export default function JournalSticker({
@@ -63,6 +70,12 @@ export default function JournalSticker({
     const el = driftRef.current;
     if (!el) return;
 
+    /*
+     * Rest -> drift -> rest, and nothing else. `x` only: no rotation, scale or
+     * y, so the artwork moves as one piece and always comes back to exactly
+     * where it was placed. Stickers fall out of step through their own duration
+     * and delay rather than by starting off-position.
+     */
     const tween = gsap.to(el, {
       x: drift,
       duration,
@@ -71,9 +84,6 @@ export default function JournalSticker({
       yoyo: true,
       repeat: -1,
     });
-    // Start from the far side so the pair of stickers sharing a duration still
-    // read as independent.
-    gsap.set(el, { x: -drift });
 
     return () => {
       tween.kill();
@@ -83,17 +93,23 @@ export default function JournalSticker({
 
   return (
     <div
+      ref={driftRef}
       className="journal-sticker"
       style={{
         left: `${left}%`,
         top: `${top}%`,
         width: `${width}%`,
         height: height !== undefined ? `${height}%` : undefined,
-        transform: rotate ? `rotate(${rotate}deg)` : undefined,
         zIndex: z,
       }}
     >
-      <div ref={driftRef} className="journal-sticker-drift" style={{ height: "100%" }}>
+      <div
+        className="journal-sticker-tilt"
+        style={{
+          height: "100%",
+          transform: rotate ? `rotate(${rotate}deg)` : undefined,
+        }}
+      >
         {/* Plain <img>: these are pre-trimmed PNGs with their own alpha, and
             they must never be re-encoded or letterboxed. */}
         {/* eslint-disable-next-line @next/next/no-img-element */}
