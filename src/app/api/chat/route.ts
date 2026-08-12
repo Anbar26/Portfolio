@@ -1,23 +1,35 @@
 import { NextResponse } from "next/server";
+import { NAME } from "@/data/about";
 import { buildKnowledgeBase } from "@/data/knowledge";
 
 /**
  * The portfolio assistant's only server-side piece.
  *
- * Everything the model may say is in the knowledge base built from the site's
- * own data modules; the API key stays here and is never sent to the browser.
- * Deliberately a plain `fetch` rather than a vendor SDK — one endpoint does not
- * justify another dependency.
+ * Talks to Google's Gemini API, which has a free tier that comfortably covers a
+ * portfolio's traffic. Everything the model may say is in the knowledge base
+ * built from the site's own data modules; the API key stays here and is never
+ * sent to the browser. Deliberately a plain `fetch` rather than a vendor SDK —
+ * one endpoint does not justify another dependency.
  */
 
 export const runtime = "nodejs";
 // The knowledge base is read at request time, so nothing here may be prerendered.
 export const dynamic = "force-dynamic";
 
-const MODEL = "claude-sonnet-5";
+/**
+ * Overridable because Google retires and renames models on its own schedule,
+ * and a 404 from a stale name should be a one-line env change rather than a
+ * redeploy of new code. `curl -H "x-goog-api-key: $KEY" \
+ * https://generativelanguage.googleapis.com/v1beta/models` lists what a key
+ * can actually reach.
+ */
+const MODEL = process.env.GEMINI_MODEL || "gemini-2.5-flash";
+const ENDPOINT = (m: string) =>
+  `https://generativelanguage.googleapis.com/v1beta/models/${m}:generateContent`;
+
 const MAX_TOKENS = 500;
 
-/** Ceilings on what a visitor can push through a public, paid endpoint. */
+/** Ceilings on what a visitor can push through a public endpoint. */
 const MAX_MESSAGES = 16;
 const MAX_CHARS = 800;
 const WINDOW_MS = 10 * 60 * 1000;
@@ -26,7 +38,8 @@ const MAX_PER_WINDOW = 25;
 /*
  * Per-process memory. Good enough for a portfolio: it costs nothing, needs no
  * infrastructure, and the worst case of losing it on a restart is that someone
- * gets their allowance back. It is not a security control — it is a bill guard.
+ * gets their allowance back. It is not a security control — it keeps a free
+ * tier from being burned through by one visitor.
  */
 const hits = new Map<string, number[]>();
 
@@ -41,7 +54,7 @@ function rateLimited(ip: string) {
   return recent.length > MAX_PER_WINDOW;
 }
 
-const SYSTEM = `You are the portfolio assistant for ${"Anbar Althaf"}, embedded in her personal portfolio site. Visitors — often recruiters — ask you about her professional background.
+const SYSTEM = `You are the portfolio assistant for ${NAME}, embedded in her personal portfolio site. Visitors — often recruiters — ask you about her professional background.
 
 THE ONE RULE: everything you say about Anbar must come from the PORTFOLIO DATA below. You have no other knowledge about her. Never guess, infer a fact she has not stated, fill a gap with what is typical, or soften a missing detail into a vague claim.
 
@@ -77,7 +90,7 @@ BOUNDARIES
 
 PORTFOLIO DATA
 ---
-${"{{KNOWLEDGE}}"}
+{{KNOWLEDGE}}
 ---`;
 
 type Msg = { role: "user" | "assistant"; content: string };
@@ -111,8 +124,8 @@ function fail(status: number, log?: unknown) {
 }
 
 export async function POST(req: Request) {
-  const key = process.env.ANTHROPIC_API_KEY;
-  if (!key) return fail(503, "ANTHROPIC_API_KEY is not set");
+  const key = process.env.GEMINI_API_KEY;
+  if (!key) return fail(503, "GEMINI_API_KEY is not set");
 
   const ip =
     req.headers.get("x-forwarded-for")?.split(",")[0].trim() ||
@@ -134,18 +147,28 @@ export async function POST(req: Request) {
   if (!messages) return fail(400);
 
   try {
-    const res = await fetch("https://api.anthropic.com/v1/messages", {
+    const res = await fetch(ENDPOINT(MODEL), {
       method: "POST",
       headers: {
         "content-type": "application/json",
-        "x-api-key": key,
-        "anthropic-version": "2023-06-01",
+        // Header rather than the ?key= query parameter: query strings end up in
+        // access logs and proxy traces, and this one is a credential.
+        "x-goog-api-key": key,
       },
       body: JSON.stringify({
-        model: MODEL,
-        max_tokens: MAX_TOKENS,
-        system: SYSTEM.replace("{{KNOWLEDGE}}", buildKnowledgeBase()),
-        messages,
+        system_instruction: {
+          parts: [{ text: SYSTEM.replace("{{KNOWLEDGE}}", buildKnowledgeBase()) }],
+        },
+        // Gemini calls the assistant turn "model".
+        contents: messages.map((m) => ({
+          role: m.role === "assistant" ? "model" : "user",
+          parts: [{ text: m.content }],
+        })),
+        generationConfig: {
+          maxOutputTokens: MAX_TOKENS,
+          // Low, not zero: this is recall, not creative writing.
+          temperature: 0.3,
+        },
       }),
       signal: AbortSignal.timeout(30_000),
     });
@@ -153,13 +176,20 @@ export async function POST(req: Request) {
     if (!res.ok) return fail(502, `${res.status} ${await res.text()}`);
 
     const data = await res.json();
-    const reply = (data?.content ?? [])
-      .filter((b: { type?: string }) => b?.type === "text")
-      .map((b: { text?: string }) => b.text ?? "")
+
+    // Gemini can decline to answer without failing the request.
+    if (data?.promptFeedback?.blockReason) {
+      return fail(502, `blocked: ${data.promptFeedback.blockReason}`);
+    }
+
+    const reply = (data?.candidates?.[0]?.content?.parts ?? [])
+      .map((p: { text?: string }) => p?.text ?? "")
       .join("")
       .trim();
 
-    if (!reply) return fail(502, "empty completion");
+    if (!reply) {
+      return fail(502, `empty completion (finishReason: ${data?.candidates?.[0]?.finishReason})`);
+    }
     return NextResponse.json({ reply });
   } catch (err) {
     return fail(502, err);
