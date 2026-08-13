@@ -674,6 +674,16 @@ export default function Home() {
 
           {/* Hero content — hidden until flower finishes */}
           <div className="hero-content relative z-10 max-w-4xl mx-auto">
+            {/*
+              The page's only h1, and it has to be this one: the name below is
+              drawn as an SVG signature, which a search engine reads as an image.
+              Visually hidden rather than removed, so the document still opens
+              with the heading a screen reader and a crawler both expect, without
+              putting a second name on a design built around the signature.
+            */}
+            <h1 className="sr-only">
+              Anbar Althaf — AI &amp; Machine Learning Engineer
+            </h1>
             <p className="text-rose-500/70 text-xs tracking-[0.45em] uppercase mb-8 font-light">
               Software Developer
             </p>

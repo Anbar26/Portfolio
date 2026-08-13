@@ -42,9 +42,67 @@ const elanor = localFont({
   variable: "--font-elanor",
 });
 
+/**
+ * Where the site lives, for canonical links and social card images — both of
+ * which need absolute URLs.
+ *
+ * Vercel exposes the production domain itself, so a deployment gets this right
+ * with no configuration. Set NEXT_PUBLIC_SITE_URL to override once a custom
+ * domain is attached, otherwise a preview build would advertise its own
+ * throwaway URL as canonical.
+ */
+export const SITE_URL =
+  process.env.NEXT_PUBLIC_SITE_URL ??
+  (process.env.VERCEL_PROJECT_PRODUCTION_URL
+    ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
+    : "http://localhost:3000");
+
+const NAME = "Anbar Althaf";
+const ROLE = "AI & Machine Learning Engineer";
+const SUMMARY =
+  "Computer Science student and AI/ML engineer. ML internships at Tenderd and PointMatrix building data pipelines over 58M+ records, and projects across AI security, reinforcement learning and AI agents.";
+
 export const metadata: Metadata = {
-  title: "Anbar — AI Engineer",
-  description: "Portfolio of Anbar, an AI Engineer specializing in machine learning, deep learning, and AI product development.",
+  metadataBase: new URL(SITE_URL),
+  /*
+   * A person's name first, because that is what a recruiter types into Google.
+   * The template gives any future page a consistent suffix without repeating it.
+   */
+  title: {
+    default: `${NAME} — ${ROLE}`,
+    template: `%s · ${NAME}`,
+  },
+  description: SUMMARY,
+  applicationName: `${NAME} — Portfolio`,
+  authors: [{ name: NAME, url: "https://github.com/Anbar26" }],
+  creator: NAME,
+  keywords: [
+    NAME, "Anbar", "AI engineer", "machine learning engineer", "ML intern",
+    "deep learning", "computer vision", "reinforcement learning", "AI security",
+    "Python", "PyTorch", "FastAPI", "portfolio", "Manipal Institute of Technology",
+  ],
+  alternates: { canonical: "/" },
+  openGraph: {
+    type: "profile",
+    firstName: "Anbar",
+    lastName: "Althaf",
+    title: `${NAME} — ${ROLE}`,
+    description: SUMMARY,
+    url: SITE_URL,
+    siteName: `${NAME} — Portfolio`,
+    locale: "en_US",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: `${NAME} — ${ROLE}`,
+    description: SUMMARY,
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: { index: true, follow: true, "max-image-preview": "large", "max-snippet": -1 },
+  },
+  category: "technology",
 };
 
 export default function RootLayout({
