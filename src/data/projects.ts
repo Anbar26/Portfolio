@@ -38,7 +38,15 @@ export const projects = [
     href: "https://github.com/Anbar26/codebase-onboarding-agent",
     image: "",
     accent: {
-      panel: "from-teal-400 via-teal-300 to-teal-100",
+      /*
+       * The one card whose wash is not a Tailwind step. teal-400 is very high
+       * chroma next to this palette and read as neon beside the rose and
+       * periwinkle cards; dropping a shade would only have made it paler, not
+       * calmer, since the cyan cast is saturation rather than lightness. These
+       * are the same lightness as the other two cards' washes with the chroma
+       * pulled down, so all three carry equal weight in the pile.
+       */
+      panel: "from-[#8fd3c7] via-[#b5e2da] to-[#e3f2ee]",
       dot: "bg-teal-400",
       number: "text-teal-300",
       tag: "bg-teal-50/80 border-teal-200 text-teal-800",
