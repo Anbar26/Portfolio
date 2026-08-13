@@ -18,7 +18,7 @@ export const projects = [
     href: "https://github.com/Anbar26/redteam-ai",
     image: "",
     accent: {
-      panel: "from-rose-200 via-rose-50 to-white",
+      panel: "from-rose-400 via-rose-300 to-rose-100",
       dot: "bg-rose-400",
       number: "text-rose-300",
       tag: "bg-rose-50/80 border-rose-200 text-rose-800",
@@ -38,7 +38,7 @@ export const projects = [
     href: "https://github.com/Anbar26/codebase-onboarding-agent",
     image: "",
     accent: {
-      panel: "from-teal-200 via-teal-50 to-white",
+      panel: "from-teal-400 via-teal-300 to-teal-100",
       dot: "bg-teal-400",
       number: "text-teal-300",
       tag: "bg-teal-50/80 border-teal-200 text-teal-800",
@@ -58,7 +58,7 @@ export const projects = [
     href: "https://github.com/Anbar26/Maze_Solver",
     image: "",
     accent: {
-      panel: "from-indigo-200 via-indigo-50 to-white",
+      panel: "from-indigo-400 via-indigo-300 to-indigo-100",
       dot: "bg-indigo-400",
       number: "text-indigo-300",
       tag: "bg-indigo-50/80 border-indigo-200 text-indigo-800",
