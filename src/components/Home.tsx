@@ -759,7 +759,7 @@ export default function Home() {
       {/* Footer */}
       <footer className="py-8 px-4 border-t border-rose-100">
         <div className="max-w-5xl mx-auto text-center text-rose-900/25 text-sm font-light">
-          <p>© 2025 Anbar Althaf · Built with Next.js</p>
+          <p>© 2025 Anbar Althaf</p>
         </div>
       </footer>
     </div>
