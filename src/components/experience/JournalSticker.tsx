@@ -26,34 +26,31 @@ export type StickerSpec = {
   /** Stacking order within the spread. */
   z?: number;
   /**
-   * How far the sticker rocks, in degrees, measured from its resting tilt.
+   * How far the sticker rocks, in degrees, from its resting tilt.
    *
-   * The reference recording swings the bow through 12°, which is the value the
-   * small pieces use. Anything anchored to a page edge wants much less — see
-   * the lace in ExperienceJournal.
+   * Omitted on every sticker but the bow — the rest of the spread is still.
    */
   rock?: number;
-  /** Seconds for one leg of the rock. Vary it so stickers fall out of step. */
+  /** Seconds each angle is held before it flips. */
   duration?: number;
   /** Head start, so nothing begins together. */
   delay?: number;
 };
 
 /**
- * One sticker on the spread — it rocks gently, the way the reference does.
+ * One sticker on the spread. Still, unless it is given a `rock` — only the bow
+ * is.
  *
- * Measured off that recording frame by frame: the bow's pixel area holds
- * constant while its bounding box grows in both directions, which is rotation
- * rather than translation or scale. The swing is about 12°, and the few pixels
- * of sideways shift that come with it are the centroid moving around an
- * off-centre pivot, not a translation of its own.
+ * The motion is measured off the reference recording, and the important part is
+ * that it does NOT ease. The bow holds one angle for about half a second, flips
+ * to the other, and holds again: 30fps of video shows no frames in between.
+ * `steps(1)` reproduces that. An eased swing was the obvious-looking choice and
+ * the wrong one — it reads as floating rather than as a sticker being knocked.
  *
- * Two nested elements, and the split still matters: the OUTER box is the only
- * thing GSAP touches, the resting tilt stays on the INNER one. The rock is then
- * a rotation applied on top of the tilt rather than something that has to know
- * about it — a sticker resting at -18° swings 12° around that angle, and the
- * two never have to be reconciled in the tween. It also means the tilt survives
- * a reduced-motion visit, where no tween is ever created.
+ * Two nested elements: the OUTER box is the only thing GSAP touches, the resting
+ * tilt stays on the INNER one, so the rock composes with the tilt instead of
+ * having to account for it. That also leaves the tilt intact on a reduced-motion
+ * visit, where no tween is ever created.
  */
 export default function JournalSticker({
   src,
@@ -64,34 +61,31 @@ export default function JournalSticker({
   height,
   rotate = 0,
   z = 1,
-  rock = 12,
-  duration = 3,
+  rock = 0,
+  duration = 0.5,
   delay = 0,
 }: StickerSpec) {
   const driftRef = useRef<HTMLDivElement>(null);
   const reduced = usePrefersReducedMotion();
 
   useEffect(() => {
-    if (reduced) return;
+    // No rock means a still sticker, which is all of them but the bow.
+    if (reduced || !rock) return;
     const el = driftRef.current;
     if (!el) return;
 
     /*
-     * Rest -> rock -> rest. Rotation only: no x, y or scale, so the artwork
-     * turns as one piece and always comes back to exactly the angle it was
-     * placed at. Stickers fall out of step through their own duration and
-     * delay rather than by starting part-way through the swing.
-     *
-     * Eased rather than stepped. The reference snaps between two angles and
-     * holds each for about half a second, which is how a two-frame sticker
-     * behaves rather than a decision about the motion; sine.inOut gives the
-     * same arc as a continuous swing.
+     * Two angles, nothing in between. `steps(1)` holds the start value for the
+     * whole duration and jumps at the end, so with yoyo the sticker sits at its
+     * resting angle for `duration`, flips to `rock`, sits there for `duration`,
+     * and flips back — the on/off cadence the recording shows, rather than a
+     * swing through the middle.
      */
     const tween = gsap.to(el, {
       rotation: rock,
       duration,
       delay,
-      ease: "sine.inOut",
+      ease: "steps(1)",
       yoyo: true,
       repeat: -1,
       transformOrigin: "50% 50%",
