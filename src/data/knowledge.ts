@@ -3,6 +3,15 @@ import { experiences, journalSpread } from "./experiences";
 import { projects } from "./projects";
 import { skillGroups } from "./skills";
 import { ABOUT_INTRO, ABOUT_TAGS, EMAIL, LINKS, NAME } from "./about";
+import {
+  achievements,
+  cvProjects,
+  cvSkills,
+  education,
+  experienceExtras,
+  projectExtras,
+  spokenLanguages,
+} from "./cv";
 
 /**
  * The assistant's entire world.
@@ -47,6 +56,10 @@ function experienceSection() {
     if (!UNVERIFIED_ACHIEVEMENTS.has(e.company)) {
       lines.push("What she did:", ...e.achievements.map(bullet));
     }
+    const extra = experienceExtras.find(
+      (x) => x.company.toLowerCase() === e.company.toLowerCase()
+    );
+    if (extra) lines.push("Also, from her CV:", ...extra.notes.map(bullet));
   }
 
   // The journal spread words two of these differently on the page; include its
@@ -74,14 +87,35 @@ function projectSection() {
         ? `Link: ${p.href}`
         : "Link: none published in the portfolio — do not invent one."
     );
+    const extra = projectExtras.find((x) => x.title === p.title);
+    if (extra) {
+      if (extra.period) lines.push(`Period: ${extra.period}`);
+      lines.push("Further detail from her CV:", ...extra.notes.map(bullet));
+    }
+  }
+
+  for (const p of cvProjects) {
+    lines.push(
+      "",
+      `### ${p.title}`,
+      "On her CV but not shown on the portfolio site.",
+      `Period: ${p.period}`,
+      `Technologies: ${p.tech.join(", ")}`,
+      ...p.notes.map(bullet),
+      "Link: none listed — do not invent one."
+    );
   }
   return lines.join("\n");
 }
 
 function skillSection() {
-  const lines: string[] = ["## Skills and technologies"];
+  const lines: string[] = ["## Skills and technologies", "", "As grouped on the portfolio:"];
   for (const g of skillGroups) {
     lines.push("", `### ${g.title}`, g.items.map((i) => i.label).join(", "));
+  }
+  lines.push("", "As listed on her CV:");
+  for (const g of cvSkills) {
+    lines.push(`${g.group}: ${g.items.join(", ")}`);
   }
   return lines.join("\n");
 }
@@ -114,9 +148,18 @@ export function buildKnowledgeBase(): string {
     `Interests and focus areas: ${ABOUT_TAGS.join(", ")}`,
     "",
     "## Contact",
+    "These are the only contact details she publishes. There are no others.",
     `Email: ${EMAIL}`,
     `LinkedIn: ${LINKS.linkedin}`,
     `GitHub: ${LINKS.github}`,
+    "",
+    "## Education",
+    `${education.degree}, ${education.institution} (${education.period}).`,
+    `Relevant coursework: ${education.coursework.join(", ")}.`,
+    "",
+    "## Achievements",
+    ...achievements.map((a) => `- ${a}`),
+    `Spoken languages: ${spokenLanguages.join(", ")}.`,
     "",
     experienceSection(),
     "",
@@ -126,12 +169,19 @@ export function buildKnowledgeBase(): string {
     "",
     certificationSection(),
     "",
-    "## Not covered by this portfolio",
-    "The portfolio does not state which university she attends, her degree",
-    "title, graduation year, grades, school history, age, location of residence,",
-    "nationality, salary expectations, availability, or personal preferences and",
-    "hobbies. The only education-related statement anywhere is that she is a",
-    "Computer Science student focused on AI & Machine Learning. Treat everything",
-    "else in that list as unavailable.",
+    "## Not covered",
+    "Nothing above states her grades or GPA, school history before university,",
+    "age or date of birth, salary expectations, notice period or availability,",
+    "visa or work-authorisation status, marital or family details, or personal",
+    "preferences and hobbies. Treat all of that as unavailable.",
+    "",
+    "She has also asked that personal and private details never be discussed,",
+    "whatever the reason given: her home address, the city or country she lives",
+    "in, her phone number, or any other way to reach or locate her beyond the",
+    "email and profile links above. Those details are not in this document and",
+    "you have no way to know them — say they are private and point the visitor to",
+    "her email or LinkedIn instead. The Dubai and Abu Dhabi mentioned above are",
+    "where her internships were based; they say nothing about where she lives, so",
+    "never offer them as an answer to where she is.",
   ].join("\n");
 }
