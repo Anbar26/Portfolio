@@ -15,7 +15,7 @@ export const projects = [
     description:
       "A CLI-first platform for red-teaming ML models. Adversarial attacks — FGSM, boundary, model extraction, prompt injection — run locally so the model never leaves your machine, while a FastAPI backend scores results, tracks history, and generates PDF audit reports.",
     tags: ["Python", "FastAPI", "PyTorch", "Next.js"],
-    href: "#",
+    href: "https://github.com/Anbar26/redteam-ai",
     image: "",
     accent: {
       panel: "from-rose-200 via-rose-50 to-white",
@@ -35,7 +35,7 @@ export const projects = [
     description:
       "A Chrome extension that adds an “Explain Repo” button to any GitHub page. An AI agent explores the codebase locally via Ollama and generates a full onboarding guide in a sidebar — nothing is ever sent to an external API.",
     tags: ["Python", "Ollama", "Chrome Extension"],
-    href: "#",
+    href: "https://github.com/Anbar26/codebase-onboarding-agent",
     image: "",
     accent: {
       panel: "from-teal-200 via-teal-50 to-white",
