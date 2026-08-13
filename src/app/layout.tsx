@@ -3,6 +3,7 @@ import { Geist, Geist_Mono, Cormorant_Garamond } from "next/font/google";
 import localFont from "next/font/local";
 import "./globals.css";
 import SmoothScroll from "@/components/SmoothScroll";
+import SiteBackground from "@/components/SiteBackground";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -55,7 +56,10 @@ export default function RootLayout({
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} ${cormorant.variable} ${dirtyline.variable} ${absans.variable} ${kenoky.variable} ${elanor.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col"><SmoothScroll>{children}</SmoothScroll></body>
+      <body className="min-h-full flex flex-col">
+        <SiteBackground />
+        <SmoothScroll>{children}</SmoothScroll>
+      </body>
     </html>
   );
 }

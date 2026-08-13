@@ -2,8 +2,8 @@
 @import "tailwindcss";
 
 :root {
-  --background: #0d0812;
-  --foreground: #f0e4ef;
+  --background: #fffdfc;
+  --foreground: #5c1a2e;
 }
 
 @theme inline {
@@ -15,9 +15,7 @@
   --font-display: var(--font-dirtyline), Georgia, serif;
 }
 
-html {
-  scroll-behavior: smooth;
-}
+/* NOTE: scroll-behavior is intentionally NOT set — ScrollSmoother drives scrolling. */
 
 body {
   background: var(--background);
@@ -25,26 +23,1387 @@ body {
   font-family: var(--font-geist-sans), Arial, sans-serif;
 }
 
-
-/* Dot grid pattern for sections */
-.dot-grid {
-  background-image: radial-gradient(circle, #f9a8c9 1px, transparent 1px);
-  background-size: 28px 28px;
+/* Page content rides above the fixed backdrop */
+#smooth-wrapper {
+  position: relative;
+  z-index: 1;
 }
 
-/* Mesh gradient blobs */
-.mesh-bg {
-  background-color: #fff;
-  background-image:
-    radial-gradient(ellipse 80% 50% at 10% 20%, rgba(251, 207, 232, 0.45) 0%, transparent 60%),
-    radial-gradient(ellipse 60% 60% at 90% 80%, rgba(253, 164, 175, 0.3) 0%, transparent 55%),
-    radial-gradient(ellipse 50% 40% at 60% 10%, rgba(252, 231, 243, 0.5) 0%, transparent 50%);
+/* ─────────────────────────────────────────────
+   Fixed site backdrop
+   ───────────────────────────────────────────── */
+
+.site-bg {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+  /* isolate repaints so the drifting aurora can't dirty the content above it */
+  contain: layout paint style;
+  background:
+    linear-gradient(170deg, #fff8fa 0%, #fffdfc 45%, #fff6f4 100%);
 }
 
-.mesh-bg-rose {
-  background-color: #fff5f7;
+.aurora-field {
+  position: absolute;
+  inset: -25%;
+  will-change: transform;
+}
+
+.aurora {
+  position: absolute;
+  border-radius: 9999px;
+  filter: blur(56px);
+  /* Keyframes below animate translate ONLY. Any scale() here would force the
+     browser to re-rasterize the blurred texture every frame, which shows up as
+     shimmering text anywhere a translucent/blurred element sits on top. */
+  will-change: transform;
+  backface-visibility: hidden;
+  transform: translateZ(0);
+}
+
+.aurora-alt {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+}
+
+.aurora-1 {
+  top: 8%;
+  left: 2%;
+  width: 52vw;
+  height: 52vw;
+  background: radial-gradient(circle, rgba(251, 207, 232, 0.85) 0%, rgba(251, 207, 232, 0) 68%);
+  animation: drift-a 28s ease-in-out infinite;
+}
+
+.aurora-2 {
+  top: 18%;
+  right: 0%;
+  width: 46vw;
+  height: 46vw;
+  background: radial-gradient(circle, rgba(253, 164, 175, 0.6) 0%, rgba(253, 164, 175, 0) 68%);
+  animation: drift-b 34s ease-in-out infinite;
+}
+
+.aurora-3 {
+  bottom: 10%;
+  left: 22%;
+  width: 44vw;
+  height: 44vw;
+  background: radial-gradient(circle, rgba(255, 228, 230, 0.9) 0%, rgba(255, 228, 230, 0) 70%);
+  animation: drift-c 40s ease-in-out infinite;
+}
+
+.aurora-4 {
+  top: 30%;
+  left: 8%;
+  width: 46vw;
+  height: 46vw;
+  background: radial-gradient(circle, rgba(216, 180, 254, 0.5) 0%, rgba(216, 180, 254, 0) 68%);
+  animation: drift-b 31s ease-in-out infinite reverse;
+}
+
+.aurora-5 {
+  bottom: 6%;
+  right: 4%;
+  width: 50vw;
+  height: 50vw;
+  background: radial-gradient(circle, rgba(254, 215, 170, 0.5) 0%, rgba(254, 215, 170, 0) 68%);
+  animation: drift-a 37s ease-in-out infinite reverse;
+}
+
+.aurora-6 {
+  top: 4%;
+  right: 20%;
+  width: 38vw;
+  height: 38vw;
+  background: radial-gradient(circle, rgba(186, 230, 253, 0.45) 0%, rgba(186, 230, 253, 0) 68%);
+  animation: drift-c 26s ease-in-out infinite;
+}
+
+@keyframes drift-a {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+  33% {
+    transform: translate3d(6vw, -5vh, 0);
+  }
+  66% {
+    transform: translate3d(-5vw, 6vh, 0);
+  }
+}
+
+@keyframes drift-b {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+  40% {
+    transform: translate3d(-7vw, 7vh, 0);
+  }
+  70% {
+    transform: translate3d(5vw, 4vh, 0);
+  }
+}
+
+@keyframes drift-c {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+  50% {
+    transform: translate3d(7vw, -7vh, 0);
+  }
+}
+
+/* Fine grid, masked so it only reads in the middle of the viewport */
+.site-bg-grid {
+  position: absolute;
+  inset: 0;
   background-image:
-    radial-gradient(ellipse 70% 50% at 90% 10%, rgba(251, 207, 232, 0.5) 0%, transparent 60%),
-    radial-gradient(ellipse 60% 60% at 5% 80%, rgba(253, 164, 175, 0.25) 0%, transparent 55%),
-    radial-gradient(ellipse 40% 40% at 50% 50%, rgba(252, 231, 243, 0.35) 0%, transparent 50%);
+    linear-gradient(rgba(190, 24, 93, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(190, 24, 93, 0.05) 1px, transparent 1px);
+  background-size: 68px 68px;
+  -webkit-mask-image: radial-gradient(ellipse 75% 65% at 50% 45%, #000 15%, transparent 78%);
+  mask-image: radial-gradient(ellipse 75% 65% at 50% 45%, #000 15%, transparent 78%);
+}
+
+/* Film grain — keeps the flat washes from looking plasticky.
+   No mix-blend-mode: blending re-composites the full viewport against the
+   moving aurora on every frame, which shimmers the text sitting above it. */
+.site-bg-grain {
+  position: absolute;
+  inset: 0;
+  opacity: 0.22;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220'><filter id='g'><feTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/><feColorMatrix type='saturate' values='0'/></filter><rect width='220' height='220' filter='url(%23g)' opacity='0.32'/></svg>");
+}
+
+.site-bg-vignette {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse 120% 95% at 50% 45%, transparent 50%, rgba(92, 26, 46, 0.09) 100%);
+}
+
+/* ── Hero flower ────────────────────────────── */
+
+.flower-layer {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.flower-parallax {
+  will-change: transform;
+}
+
+/* Deliberately big — the bloom is meant to fill roughly half the page and may
+   bleed past the viewport edges at the intro's final scale(1.15). No vh cap:
+   it lives on the fixed .site-bg layer, so nothing but the window clips it. */
+.hero-flower {
+  width: min(70vw, 48rem);
+  height: min(70vw, 48rem);
+  background-image: url(/flower-background.png);
+  background-size: contain;
+  background-position: center;
+  background-repeat: no-repeat;
+  will-change: transform, opacity;
+}
+
+@media (max-width: 768px) {
+  .hero-flower {
+    width: min(84vw, 26rem);
+    height: min(84vw, 26rem);
+  }
+}
+
+/* ─────────────────────────────────────────────
+   Experience — the journal spread
+   ─────────────────────────────────────────────
+ *
+ * One box drives the whole composition. `.journal` is locked to the book
+ * artwork's own 1.2857 ratio, and every sticker, frame and text block is placed
+ * as a percentage of it — so the spread keeps its proportions at any width and
+ * needs no per-breakpoint nudging of the decoration.
+ *
+ * `overflow: visible` is load-bearing: the stars, bow, vine and blossom all hang
+ * off the edges of the book by design.
+ */
+
+.journal-section {
+  position: relative;
+  padding: 6rem 1.25rem 7rem;
+}
+
+/*
+ * `container-type: inline-size` makes the journal itself the unit of measure, so
+ * the entry type is sized in `cqw` and scales with the book rather than with the
+ * window. Sizing it in `vw` looked right on a wide desktop and collapsed to ~9px
+ * on a narrow one, because the journal stops growing at its max width while the
+ * viewport keeps going. Inline-size containment does not clip painting, so the
+ * stickers still hang off the edges.
+ */
+.journal {
+  position: relative;
+  container-type: inline-size;
+  width: min(92vw, 68rem);
+  aspect-ratio: 666 / 518;
+  margin: 0 auto;
+  overflow: visible;
+}
+
+/* Under the spread breakpoint the book is a header ornament, not a surface to
+   read off — the entries move to cards below it. */
+@media (max-width: 1023.98px) {
+  .journal {
+    width: min(64vw, 22rem);
+  }
+}
+
+.journal-base {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  user-select: none;
+  filter: drop-shadow(0 26px 50px rgba(92, 26, 46, 0.16));
+}
+
+/* ── Stickers ── */
+
+.journal-sticker {
+  position: absolute;
+  pointer-events: none;
+  user-select: none;
+  /* The spec writes the resting tilt here; GSAP only ever touches the child. */
+  transform-origin: 50% 50%;
+}
+
+.journal-sticker-drift {
+  will-change: transform;
+}
+
+.journal-sticker img,
+.journal-polaroid > img {
+  display: block;
+  width: 100%;
+  height: auto; /* never distort the artwork */
+}
+
+.journal-sticker img {
+  filter: drop-shadow(0 6px 12px rgba(92, 26, 46, 0.14));
+}
+
+/* ── Frame + logo ── */
+
+.journal-polaroid {
+  position: absolute;
+  transform-origin: 50% 50%;
+  filter: drop-shadow(0 10px 20px rgba(92, 26, 46, 0.18));
+}
+
+.journal-polaroid-window {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+/* `contain` so a square logo and a wide wordmark both sit correctly on the
+   paper — the frame is the crop, the logo is never cropped by it. */
+.journal-polaroid-window img {
+  max-width: 100%;
+  max-height: 100%;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+}
+
+/* ── Written entries ── */
+
+.journal-entry {
+  position: absolute;
+  color: #5c1a2e;
+  text-align: left;
+}
+
+.journal-entry-period {
+  font-size: 1.05cqw;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: rgba(92, 26, 46, 0.5);
+  margin-bottom: 0.5em;
+}
+
+.journal-entry-company {
+  font-family: var(--font-dirtyline), serif;
+  font-size: 2.8cqw;
+  line-height: 1.05;
+  color: #5c1a2e;
+}
+
+.journal-entry-role {
+  font-family: var(--font-playfair), serif;
+  font-style: italic;
+  font-size: 1.5cqw;
+  color: rgba(92, 26, 46, 0.7);
+  margin-top: 0.15em;
+}
+
+.journal-rule {
+  width: 3.2rem;
+  height: 1px;
+  margin: 0.7em 0 0.7em;
+  background: linear-gradient(to right, rgba(190, 90, 120, 0.75), transparent);
+}
+
+.journal-entry-lede {
+  font-size: 1.33cqw;
+  line-height: 1.5;
+  color: rgba(92, 26, 46, 0.82);
+}
+
+.journal-entry-notes {
+  list-style: none;
+  margin: 0.7em 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35em;
+}
+
+.journal-entry-notes li {
+  position: relative;
+  padding-left: 0.85em;
+  font-size: 1.2cqw;
+  line-height: 1.45;
+  color: rgba(92, 26, 46, 0.66);
+}
+
+/* A pen tick rather than a bullet — this is a diary page, not a résumé. */
+.journal-entry-notes li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.55em;
+  width: 0.32em;
+  height: 0.32em;
+  border-radius: 999px;
+  background: rgba(190, 90, 120, 0.8);
+}
+
+.journal-entry-tools {
+  margin-top: 0.9em;
+  font-size: 1.05cqw;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(92, 26, 46, 0.45);
+}
+
+/* ── Phones: the book stays as a backdrop, the entries become cards ── */
+
+.journal-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 1.1rem;
+  max-width: 32rem;
+  margin: 1.75rem auto 0;
+}
+
+.journal-card {
+  border: 1px solid rgba(190, 90, 120, 0.22);
+  border-radius: 18px;
+  background: rgba(255, 252, 251, 0.72);
+  backdrop-filter: blur(2px);
+  padding: 1.15rem 1.25rem 1.3rem;
+}
+
+.journal-card-head {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  margin-bottom: 0.6rem;
+}
+
+.journal-card-logo {
+  width: 2.6rem;
+  height: 2.6rem;
+  object-fit: contain;
+  border-radius: 8px;
+  background: #fff;
+  padding: 4px;
+  border: 1px solid rgba(190, 90, 120, 0.18);
+}
+
+.journal-card .journal-entry-company {
+  font-size: 1.1rem;
+}
+
+.journal-card .journal-entry-role,
+.journal-card .journal-entry-period,
+.journal-card .journal-entry-lede,
+.journal-card .journal-entry-notes li,
+.journal-card .journal-entry-tools {
+  font-size: unset;
+}
+
+.journal-card .journal-entry-period {
+  font-size: 0.6rem;
+  margin-bottom: 0.6rem;
+}
+
+.journal-card .journal-entry-role {
+  font-size: 0.82rem;
+}
+
+.journal-card .journal-entry-lede {
+  font-size: 0.82rem;
+}
+
+.journal-card .journal-entry-notes li {
+  font-size: 0.76rem;
+}
+
+.journal-card .journal-entry-tools {
+  font-size: 0.62rem;
+}
+
+/* ─────────────────────────────────────────────
+   Projects — the photo pile
+   ─────────────────────────────────────────────
+ *
+ * Every card occupies the same box, absolutely stacked; GSAP only ever writes
+ * transforms on the slot, so the deal stays on the compositor. The pile fans
+ * because each card rests at a slightly different offset and angle, which is
+ * what leaves the edges of the ones underneath showing.
+ */
+
+.project-section {
+  position: relative;
+}
+
+.project-stage {
+  position: relative;
+  height: 100vh;
+  width: 100%;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 5rem 1.5rem 3rem;
+}
+
+.project-stage-inner {
+  width: 100%;
+  max-width: 78rem;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1.35fr 1fr;
+  align-items: center;
+  gap: clamp(1.5rem, 4vw, 4rem);
+}
+
+.project-stack {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 10;
+}
+
+.project-card-slot {
+  position: absolute;
+  inset: 0;
+  will-change: transform;
+  transform-origin: 50% 50%;
+}
+
+.project-card {
+  position: absolute;
+  inset: 0;
+}
+
+.project-card-face {
+  position: absolute;
+  inset: 0;
+  border-radius: 26px;
+  overflow: hidden;
+  background: #fffdfc;
+  /* One soft drop, the weight of a photo lying on a table — not a UI card. */
+  box-shadow:
+    0 2px 4px rgba(92, 26, 46, 0.06),
+    0 24px 60px -18px rgba(92, 26, 46, 0.34);
+}
+
+.project-card-face img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* Stand-in face, used until a project has a screenshot. */
+.project-card-wash {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  padding: clamp(1.25rem, 3vw, 2.5rem);
+}
+
+.project-card-kicker {
+  font-size: clamp(0.55rem, 0.78vw, 0.7rem);
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: rgba(92, 26, 46, 0.55);
+}
+
+.project-card-title {
+  font-family: var(--font-dirtyline), Georgia, serif;
+  font-size: clamp(1.5rem, 3.4vw, 3rem);
+  line-height: 1.02;
+  color: #5c1a2e;
+}
+
+/* ── The copy beside the pile ── */
+
+.project-meta {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.project-meta-count {
+  font-family: var(--font-playfair), Georgia, serif;
+  font-size: 0.9rem;
+  color: rgba(92, 26, 46, 0.55);
+  font-variant-numeric: tabular-nums;
+}
+
+.project-meta-count-total {
+  color: rgba(92, 26, 46, 0.28);
+}
+
+.project-meta-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.project-meta-title {
+  font-family: var(--font-dirtyline), Georgia, serif;
+  font-size: clamp(1.35rem, 2.4vw, 2.1rem);
+  line-height: 1.05;
+  color: #5c1a2e;
+}
+
+.project-meta-desc {
+  font-size: clamp(0.78rem, 1vw, 0.92rem);
+  line-height: 1.6;
+  color: rgba(92, 26, 46, 0.66);
+}
+
+.project-meta-tech {
+  font-size: clamp(0.6rem, 0.76vw, 0.7rem);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: rgba(92, 26, 46, 0.42);
+}
+
+.project-meta-link {
+  align-self: flex-start;
+  font-size: 0.8rem;
+  color: rgb(190, 90, 120);
+  border-bottom: 1px solid rgba(190, 90, 120, 0.4);
+  padding-bottom: 2px;
+  transition: color 0.3s, border-color 0.3s;
+}
+
+.project-meta-link:hover {
+  color: #5c1a2e;
+  border-color: #5c1a2e;
+}
+
+/*
+ * Phones: the pile stays, but stacked over the copy rather than beside it — a
+ * two-column split would leave the card too small for the deal to read.
+ */
+@media (max-width: 767.98px) {
+  .project-stage {
+    padding: 4.5rem 1.1rem 2.5rem;
+  }
+
+  .project-stage-inner {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+
+  .project-stack {
+    aspect-ratio: 4 / 3;
+  }
+
+  .project-card-face {
+    border-radius: 20px;
+  }
+
+  .project-meta-desc {
+    /* The card is the point here; the write-up stays a glance, not a read. */
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+}
+
+/* Reduced motion: no pile, just the projects. */
+.project-section-flat {
+  padding: 6rem 1.25rem;
+}
+
+.project-flat-list {
+  max-width: 44rem;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 2.5rem;
+}
+
+.project-flat {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+/* ─────────────────────────────────────────────
+   Certifications — diagonal conveyor (Transition 1)
+   ───────────────────────────────────────────── */
+
+/*
+ * Every mark is anchored at the centre of the pinned stage; GSAP offsets it
+ * from there. The `vh` term keeps it short enough on wide, shallow windows that
+ * the front slot still clears the caption in the bottom-right.
+ *
+ * Much smaller than the plates it replaced — a bare logo needs a fraction of the
+ * room a card did, and the extra air is what makes the drift read as a
+ * composition rather than a deck. `--cert-scale` varies the size per issuer so
+ * the marks don't march past at a uniform size.
+ */
+.cert-slide {
+  width: calc(min(52vw, 46rem, 74vh) * var(--cert-scale, 1));
+  aspect-ratio: 524 / 368;
+  /* Pre-hydration fallback; GSAP replaces this with xPercent/yPercent. */
+  transform: translate(-50%, -50%);
+  will-change: transform;
+  backface-visibility: hidden;
+}
+
+.cert-slide:focus-visible {
+  outline: 2px solid rgb(251 113 133);
+  outline-offset: 6px;
+  border-radius: 28px;
+}
+
+@media (min-width: 768px) and (max-width: 1023.98px) {
+  .cert-slide {
+    width: calc(min(62vw, 30rem, 52vh) * var(--cert-scale, 1));
+  }
+}
+
+.cert-flow-item:focus-visible {
+  outline: 2px solid rgb(251 113 133);
+  outline-offset: 6px;
+  border-radius: 28px;
+}
+
+/* ── The certificate card ──
+ *
+ * The card is the supplied lace artwork, so the slide takes the artwork's own
+ * 368:524 portrait ratio and the corners are rounded off it. The mark sits in
+ * `.cert-card-inner`, a box matched to the pale panel inside the lace — measured
+ * from the image, so nothing can land on the border.
+ */
+.cert-panel {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cert-card {
+  position: relative;
+  container-type: inline-size;
+  height: 100%;
+  aspect-ratio: 524 / 368;
+  max-width: 100%;
+  border-radius: 18px;
+  overflow: hidden;
+  box-shadow:
+    0 1px 3px rgba(92, 26, 46, 0.06),
+    0 18px 40px -16px rgba(92, 26, 46, 0.38);
+}
+
+.cert-card-bg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* The pale panel inside the lace. Everything the certificate says lives here. */
+.cert-card-inner {
+  position: absolute;
+  left: 9.54%;
+  top: 11.5%;
+  width: 83.4%;
+  height: 74%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3.2cqw;
+  padding: 3cqw 5cqw;
+  text-align: center;
+}
+
+/* The mark stays the loudest thing on the card; the type sits under it. */
+.cert-card-mark {
+  flex: 0 1 auto;
+  min-height: 0;
+  height: 38%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cert-card-mark img {
+  display: block;
+  max-width: 100%;
+  max-height: 100%;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+}
+
+.cert-card-title {
+  font-family: var(--font-playfair), Georgia, serif;
+  font-size: 4.1cqw;
+  line-height: 1.18;
+  color: #5c1a2e;
+  /* Two lines is the most the panel can hold without crowding the mark. */
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.cert-card-meta {
+  font-size: 2.35cqw;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(92, 26, 46, 0.5);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+
+.cert-card-issuer {
+  color: rgba(92, 26, 46, 0.72);
+}
+
+.cert-card-dot {
+  padding: 0 0.5em;
+  opacity: 0.55;
+}
+
+.cert-card-monogram {
+  font-family: var(--font-playfair), Georgia, serif;
+  font-size: 2.25rem;
+  font-weight: 700;
+  color: rgba(92, 26, 46, 0.55);
+  line-height: 1;
+}
+
+@media (max-width: 767.98px) {
+  .cert-card {
+    border-radius: 14px;
+  }
+}
+
+/* ─────────────────────────────────────────────
+   Skills — stacked fan ➝ three cards (Transition 2)
+   ───────────────────────────────────────────── */
+
+/*
+ * Resting layout: the three-column row. This is what renders without JS, which
+ * is why the list face — not the plate — is the one turned toward the reader by
+ * default. The animation starts by rotating *away* from this.
+ */
+.skills-flip-grid {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: clamp(0.9rem, 2vw, 1.75rem);
+  width: 100%;
+  max-width: 68rem;
+  margin-inline: auto;
+}
+
+/*
+ * The captured "before" state: the fan, mid-stage. Only ever applied for the
+ * synchronous instant Flip needs to measure it, so its inner type never actually
+ * paints at this size.
+ *
+ * Sized to roughly one final column on purpose. In the reference the cards
+ * barely change size across the transition — they separate and turn over. Making
+ * the stack much smaller than the row turns it into a zoom, which it isn't.
+ */
+/*
+ * --stack-w / --stack-h are written by SkillsFlip from a live measurement of a
+ * settled card, so the fan is exactly one column in size. Expressing it in CSS
+ * meant guessing the card's content height, and the guess broke down on narrow
+ * viewports where the chips reflow — the stack ended up half the size of the
+ * row and the whole thing read as a zoom instead of a deal-out.
+ */
+.skills-flip-grid.is-stacked {
+  display: block;
+  width: var(--stack-w, 20rem);
+  height: var(--stack-h, 28rem);
+  max-width: none;
+  margin-inline: auto;
+}
+
+.skills-flip-grid.is-stacked .skill-flip-item {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+}
+
+/* Front of the fan sits up and to the left, each card behind it steps down and
+   to the right — the direction the reference stack leans. */
+.skills-flip-grid.is-stacked .skill-flip-item:nth-child(1) { left: -11%; top: -6%; }
+.skills-flip-grid.is-stacked .skill-flip-item:nth-child(2) { left: 0;    top: 0;   }
+.skills-flip-grid.is-stacked .skill-flip-item:nth-child(3) { left: 11%;  top: 6%;  }
+
+/* In the measured layout the item is absolutely sized, so the faces just fill
+   it rather than deriving height from their own content. */
+.skills-flip-grid.is-stacked .skill-face-list {
+  height: 100%;
+}
+
+/* Flex the whole chain so all three cards take the height of the tallest — the
+   middle group has eight chips against the others' six. */
+.skill-flip-item {
+  position: relative;
+  display: flex;
+}
+
+/* Stacking order is set unconditionally: the cards only overlap mid-flip, and
+   the front of the fan has to stay in front all the way through. */
+.skill-flip-item:nth-child(1) { z-index: 3; }
+.skill-flip-item:nth-child(2) { z-index: 2; }
+.skill-flip-item:nth-child(3) { z-index: 1; }
+
+.skill-flip-inner {
+  position: relative;
+  flex: 1 1 auto;
+  display: flex;
+  min-width: 0;
+  transform-style: preserve-3d;
+  /* Resting state shows the list face — see note above. */
+  transform: rotateY(180deg);
+  will-change: transform;
+}
+
+.skill-face {
+  border-radius: 26px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  padding: clamp(1.05rem, 1.5vw, 1.6rem);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+/* The list face is the one in flow, so the card is exactly as tall as its
+   content; the plate is laid over it. */
+.skill-face-list {
+  position: relative;
+  flex: 1 1 auto;
+  min-width: 0;
+  transform: rotateY(180deg);
+  background: rgba(255, 255, 255, 0.82);
+  border: 1px solid rgba(253, 164, 175, 0.55);
+  box-shadow: 0 22px 55px -28px rgba(92, 26, 46, 0.5);
+}
+
+.skill-face-plate {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 90% 60% at 25% 8%, rgba(251, 113, 133, 0.4) 0%, transparent 62%),
+    linear-gradient(155deg, #6d2038 0%, #5c1a2e 48%, #431022 100%);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  box-shadow: 0 26px 60px -26px rgba(92, 26, 46, 0.7);
+}
+
+.skill-plate-index {
+  position: absolute;
+  right: 1.4rem;
+  top: 1.2rem;
+  font-family: var(--font-playfair), Georgia, serif;
+  font-weight: 700;
+  font-size: 5rem;
+  line-height: 1;
+  color: rgba(255, 255, 255, 0.1);
+  user-select: none;
+  pointer-events: none;
+}
+
+.skill-plate-glow {
+  position: absolute;
+  left: -20%;
+  bottom: -30%;
+  width: 80%;
+  height: 70%;
+  border-radius: 9999px;
+  background: radial-gradient(circle, rgba(251, 207, 232, 0.3) 0%, transparent 68%);
+  filter: blur(28px);
+  pointer-events: none;
+}
+
+/* Short laptops: tighten the chips so a card still clears the stage padding. */
+@media (max-height: 800px) {
+  .skill-tiles {
+    gap: 0.5rem;
+  }
+  .skill-tiles > * {
+    padding-top: 0.6rem;
+    padding-bottom: 0.6rem;
+  }
+  .skill-plate-index {
+    font-size: 5.5rem;
+  }
+}
+
+/*
+ * The circular field behind the cards. One tiled dot, masked into a thick
+ * annulus — no per-dot DOM, and GSAP only ever touches transform and opacity.
+ *
+ * 150vmin puts the outer edge past the left and right viewport edges while the
+ * inner edge still clears the top and bottom, so what you actually see are two
+ * tall arcs flanking the cards — the reference's composition. Portrait viewports
+ * need a smaller circle or both arcs fall outside the frame entirely.
+ */
+.skills-dot-ring {
+  --ring: 150vmin;
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: var(--ring);
+  height: var(--ring);
+  margin-left: calc(var(--ring) / -2);
+  margin-top: calc(var(--ring) / -2);
+  z-index: 0;
+  opacity: 0;
+  pointer-events: none;
+  background-image: radial-gradient(
+    circle at center,
+    rgba(190, 24, 93, 0.55) 1.3px,
+    transparent 1.9px
+  );
+  background-size: 18px 18px;
+  -webkit-mask-image: radial-gradient(
+    circle at center,
+    transparent 62%,
+    rgba(0, 0, 0, 0.16) 71%,
+    rgba(0, 0, 0, 0.7) 89%,
+    #000 98%,
+    transparent 100%
+  );
+  mask-image: radial-gradient(
+    circle at center,
+    transparent 62%,
+    rgba(0, 0, 0, 0.16) 71%,
+    rgba(0, 0, 0, 0.7) 89%,
+    #000 98%,
+    transparent 100%
+  );
+  will-change: transform, opacity;
+}
+
+@media (orientation: portrait) {
+  .skills-dot-ring {
+    --ring: 118vmin;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .aurora {
+    animation: none !important;
+  }
+
+  /* Both scroll transitions fall back to plain stacked layouts in React, but
+     make sure nothing here can leave a card mid-flip or a ring on screen. */
+  .skill-flip-inner {
+    transform: none !important;
+  }
+
+  .skills-dot-ring {
+    display: none;
+  }
+}
+
+/* Scene-change wrappers. The pinned stage owns its own transform (GSAP pins by
+   translating it), so the horizontal move goes on these instead. */
+.project-scene,
+.cert-scene {
+  width: 100%;
+  will-change: transform;
+}
+
+.cert-scene {
+  position: absolute;
+  inset: 0;
+}
+
+/* ─────────────────────────────────────────────
+   Certifications — pick up and turn over
+   ─────────────────────────────────────────────
+ *
+ * A real Y-axis rotation, not a scale. `preserve-3d` on the inner element keeps
+ * the two faces in the same 3D space and `backface-visibility: hidden` is what
+ * makes the back genuinely hidden until the card passes side-on — without it
+ * both faces paint at once and the turn reads as a crossfade.
+ *
+ * The perspective lives on the box, not on an ancestor, so it stays correct
+ * wherever the card happens to be on screen.
+ */
+
+.cert-flip-root {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+}
+
+.cert-flip-backdrop {
+  position: absolute;
+  inset: 0;
+  /* Deliberately light — the belt should stay legible behind the card. */
+  background: rgba(92, 26, 46, 0.22);
+  backdrop-filter: blur(3px);
+}
+
+.cert-flip-box {
+  position: absolute;
+  perspective: 1600px;
+  will-change: transform, width, height, left, top;
+}
+
+.cert-flip-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+
+.cert-flip-face {
+  position: absolute;
+  inset: 0;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  border-radius: 18px;
+  overflow: hidden;
+  box-shadow:
+    0 2px 6px rgba(92, 26, 46, 0.08),
+    0 30px 70px -20px rgba(92, 26, 46, 0.45);
+}
+
+.cert-flip-back {
+  transform: rotateY(180deg);
+}
+
+/* The front reuses the belt card verbatim, so the first frame of the flight is
+   pixel-for-pixel the card that was clicked. */
+.cert-flip-front .cert-card {
+  height: 100%;
+  width: 100%;
+  aspect-ratio: auto;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+.cert-flip-close {
+  position: absolute;
+  z-index: 3;
+  top: -0.9rem;
+  right: -0.9rem;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 999px;
+  border: 1px solid rgba(190, 90, 120, 0.4);
+  background: rgba(255, 253, 252, 0.92);
+  color: rgba(92, 26, 46, 0.7);
+  font-size: 0.8rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.3s, color 0.3s, border-color 0.3s;
+}
+
+.cert-flip-close:hover {
+  transform: rotate(90deg);
+  color: #5c1a2e;
+  border-color: rgba(190, 90, 120, 0.9);
+}
+
+/* ── The back ── */
+
+/* Padded to the card's own edges now that the back is a flat colour — the old
+   inset existed only to sit inside the lace border of the artwork. */
+.cert-flip-back-inner {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  gap: 4%;
+  padding: 6% 6.5%;
+  container-type: inline-size;
+}
+
+.cert-flip-logo {
+  flex: 0 0 auto;
+  width: 16%;
+  max-height: 22%;
+  object-fit: contain;
+  object-position: left top;
+}
+
+.cert-flip-detail {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding-right: 0.5rem;
+}
+
+.cert-flip-issuer {
+  font-size: 2.1cqw;
+  letter-spacing: 0.26em;
+  text-transform: uppercase;
+  color: rgba(92, 26, 46, 0.5);
+}
+
+.cert-flip-name {
+  font-family: var(--font-playfair), Georgia, serif;
+  font-size: 4.4cqw;
+  line-height: 1.14;
+  color: #5c1a2e;
+  margin-top: 0.25em;
+}
+
+.cert-flip-line {
+  margin-top: 0.6em;
+  font-size: 2.1cqw;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(92, 26, 46, 0.5);
+  display: flex;
+  align-items: center;
+  gap: 0.5em;
+}
+
+.cert-flip-sep {
+  opacity: 0.5;
+}
+
+.cert-flip-dot {
+  width: 0.45em;
+  height: 0.45em;
+  border-radius: 999px;
+  display: inline-block;
+}
+
+.cert-flip-rule {
+  height: 1px;
+  margin: 1em 0;
+  background: linear-gradient(to right, rgba(190, 90, 120, 0.55), transparent);
+}
+
+.cert-flip-desc {
+  font-size: 2.5cqw;
+  line-height: 1.55;
+  color: rgba(92, 26, 46, 0.75);
+}
+
+.cert-flip-skills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5em;
+  margin-top: 1em;
+}
+
+.cert-flip-skills span {
+  padding: 0.35em 0.9em;
+  border-radius: 999px;
+  border: 1px solid rgba(190, 90, 120, 0.3);
+  background: rgba(255, 255, 255, 0.55);
+  font-size: 1.9cqw;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(92, 26, 46, 0.7);
+}
+
+.cert-flip-courses {
+  list-style: none;
+  margin: 1em 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.45em;
+}
+
+.cert-flip-courses li,
+.cert-flip-courses a {
+  display: flex;
+  align-items: center;
+  gap: 0.55em;
+  font-size: 2.2cqw;
+  color: rgba(92, 26, 46, 0.72);
+  transition: color 0.25s;
+}
+
+.cert-flip-courses a:hover {
+  color: #5c1a2e;
+}
+
+.cert-flip-courses svg {
+  width: 1em;
+  height: 1em;
+  flex: 0 0 auto;
+  color: rgba(190, 90, 120, 0.85);
+}
+
+.cert-flip-credential {
+  display: inline-block;
+  margin-top: 1.1em;
+  font-size: 2.2cqw;
+  color: rgb(190, 90, 120);
+  border-bottom: 1px solid rgba(190, 90, 120, 0.4);
+  padding-bottom: 2px;
+}
+
+/* Phones: the back stacks, and the type stops shrinking with the card. */
+@media (max-width: 767.98px) {
+  .cert-flip-back-inner {
+    flex-direction: column;
+    gap: 2%;
+  }
+
+  .cert-flip-logo {
+    width: 34%;
+    max-height: 16%;
+  }
+
+  .cert-flip-close {
+    top: -0.7rem;
+    right: -0.7rem;
+  }
+}
+
+/* ── Skills — the travelling highlight ──
+ *
+ * One marker per card slides from chip to chip. It sits behind the chips, which
+ * is why they carry no fill of their own: a chip with a white background would
+ * hide the marker underneath it. The border and hover treatment are untouched,
+ * and the card's own white panel still provides the ground.
+ */
+.skill-tiles {
+  position: relative;
+}
+
+.skill-tiles-marker {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 0;
+  height: 0;
+  border-radius: 1rem;
+  background: #5c1a2e;
+  opacity: 0;
+  pointer-events: none;
+  will-change: transform, width, height;
+}
+
+.skill-tile {
+  /* Transparent so the marker shows through; the border still draws the chip. */
+  background-color: transparent;
+}
+
+.skill-tile-icon,
+.skill-tile-label {
+  position: relative;
+  z-index: 1;
+}
+
+/* GSAP swaps this the moment the marker covers the chip. */
+.skill-tile-label {
+  color: rgba(92, 26, 46, 0.55);
+}
+
+/* ── Hero scroll cue ──────────────────────────
+   Sits at the foot of the pinned hero. Type matches the section labels used
+   elsewhere (small, wide-tracked, uppercase) so it reads as part of the system
+   rather than a UI affordance bolted on. */
+.hero-scroll-cue {
+  position: absolute;
+  left: 50%;
+  bottom: 2.25rem;
+  transform: translateX(-50%);
+  z-index: 10;
+  pointer-events: none;
+}
+
+.hero-scroll-bob {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.7rem;
+  will-change: transform;
+}
+
+.hero-scroll-word {
+  font-size: 10px;
+  letter-spacing: 0.42em;
+  text-transform: uppercase;
+  font-weight: 300;
+  color: rgba(190, 90, 120, 0.8);
+  padding-left: 0.42em; /* offset the trailing letter-space so it optically centres */
+}
+
+.hero-scroll-line {
+  width: 1px;
+  height: 2.5rem;
+  background: linear-gradient(to bottom, rgba(190, 90, 120, 0.75), rgba(190, 90, 120, 0));
+}
+
+@media (max-width: 767.98px) {
+  .hero-scroll-cue {
+    bottom: 1.5rem;
+  }
+
+  .hero-scroll-line {
+    height: 1.9rem;
+  }
 }
