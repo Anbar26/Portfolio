@@ -44,20 +44,13 @@ const Z = {
 } as const;
 
 /*
- * `rock` is the swing in degrees and `duration` one leg of it, both per sticker.
+ * Only the bow moves. Everything else on the spread is still — no `rock`, no
+ * tween created for it at all.
  *
- * 12 degrees is what the reference recording measures. The lace is the one
- * exception at 3: it is a wide panel ruled along the foot of the page rather
- * than a loose sticker, and swinging it with the others would pull it visibly
- * out of true with the paper edge it is meant to sit on.
- *
- * The durations sit between 1.4s and 2.3s. Slower stopped reading as movement
- * at all — the earlier drift travelled under a pixel a second and the section
- * looked static.
- *
- * They stay deliberately uneven — the ear for this is the same as for a wind
- * chime, where matched intervals sound mechanical. No two are a neat multiple
- * of each other, so the group never resolves into a single beat.
+ * Its two angles and their timing come from the reference recording: a 12
+ * degree swing, each angle held about half a second, flipping between the two
+ * with nothing in between. See JournalSticker for why that is stepped rather
+ * than eased.
  */
 const STICKERS: StickerSpec[] = [
   {
@@ -66,8 +59,6 @@ const STICKERS: StickerSpec[] = [
     top: 10.8,
     width: 17.6,
     z: Z.vine,
-    rock: 10,
-    duration: 2.1,
   },
   {
     src: "/journal/sticker-star-silver.png",
@@ -76,9 +67,6 @@ const STICKERS: StickerSpec[] = [
     width: 20,
     rotate: -18,
     z: Z.starSilver,
-    rock: 12,
-    duration: 1.7,
-    delay: 0.3,
   },
   {
     src: "/journal/sticker-star-pink.png",
@@ -86,19 +74,16 @@ const STICKERS: StickerSpec[] = [
     top: -5.5,
     width: 17.1,
     z: Z.starPink,
-    rock: 12,
-    duration: 1.9,
-    delay: 0.9,
   },
   {
     src: "/journal/sticker-bow.png",
+    // the only sticker that moves
+    rock: 12,
+    duration: 0.5,
     left: 78.9,
     top: -8.1,
     width: 25.8,
     z: Z.bow,
-    rock: 12,
-    duration: 1.4,
-    delay: 0.5,
   },
   {
     src: "/journal/sticker-blossom.png",
@@ -106,9 +91,6 @@ const STICKERS: StickerSpec[] = [
     top: 73.4,
     width: 30.3,
     z: Z.blossom,
-    rock: 10,
-    duration: 2.0,
-    delay: 1.2,
   },
   {
     // Lace along the foot of the left page. Sits above the Tenderd card, whose
@@ -119,9 +101,6 @@ const STICKERS: StickerSpec[] = [
     width: 32.4,
     height: 33.9,
     z: Z.lace,
-    rock: 3,
-    duration: 2.3,
-    delay: 0.7,
   },
 ];
 
@@ -170,7 +149,6 @@ export default function ExperienceJournal() {
       gsap.from(journal, {
         y: 40,
         autoAlpha: 0,
-        duration: 1,
         ease: "power3.out",
         scrollTrigger: { trigger: section, start: "top 75%", once: true },
       });
