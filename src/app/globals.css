@@ -280,13 +280,14 @@ body {
   position: absolute;
   pointer-events: none;
   user-select: none;
-  /* GSAP drifts this box, and it is deliberately never rotated — see
-     JournalSticker: a translate inside a rotated parent would go diagonal. */
+  /* GSAP rocks this box; the resting tilt stays on the child, so the swing
+     composes with the tilt instead of having to account for it. */
   will-change: transform;
+  transform-origin: 50% 50%;
 }
 
 .journal-sticker-tilt {
-  /* The resting tilt lives here, below the drift. */
+  /* The resting tilt lives here, below the rock. */
   transform-origin: 50% 50%;
 }
 
