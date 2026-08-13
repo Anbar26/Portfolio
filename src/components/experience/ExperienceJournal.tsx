@@ -44,12 +44,16 @@ const Z = {
 } as const;
 
 /*
- * `drift` is the travel in px and `duration` one leg of it, both per sticker.
+ * `rock` is the swing in degrees and `duration` one leg of it, both per sticker.
  *
- * The durations sit between 1.4s and 2.3s because slower stopped reading as
- * movement at all: 5px over 5.2s is under a pixel a second, which is real but
- * imperceptible, and the section looked static. Around 2s the same few pixels
- * are noticeable without becoming busy.
+ * 12 degrees is what the reference recording measures. The lace is the one
+ * exception at 3: it is a wide panel ruled along the foot of the page rather
+ * than a loose sticker, and swinging it with the others would pull it visibly
+ * out of true with the paper edge it is meant to sit on.
+ *
+ * The durations sit between 1.4s and 2.3s. Slower stopped reading as movement
+ * at all — the earlier drift travelled under a pixel a second and the section
+ * looked static.
  *
  * They stay deliberately uneven — the ear for this is the same as for a wind
  * chime, where matched intervals sound mechanical. No two are a neat multiple
@@ -62,7 +66,7 @@ const STICKERS: StickerSpec[] = [
     top: 10.8,
     width: 17.6,
     z: Z.vine,
-    drift: 4,
+    rock: 10,
     duration: 2.1,
   },
   {
@@ -72,7 +76,7 @@ const STICKERS: StickerSpec[] = [
     width: 20,
     rotate: -18,
     z: Z.starSilver,
-    drift: 5,
+    rock: 12,
     duration: 1.7,
     delay: 0.3,
   },
@@ -82,7 +86,7 @@ const STICKERS: StickerSpec[] = [
     top: -5.5,
     width: 17.1,
     z: Z.starPink,
-    drift: 6,
+    rock: 12,
     duration: 1.9,
     delay: 0.9,
   },
@@ -92,7 +96,7 @@ const STICKERS: StickerSpec[] = [
     top: -8.1,
     width: 25.8,
     z: Z.bow,
-    drift: 5,
+    rock: 12,
     duration: 1.4,
     delay: 0.5,
   },
@@ -102,7 +106,7 @@ const STICKERS: StickerSpec[] = [
     top: 73.4,
     width: 30.3,
     z: Z.blossom,
-    drift: 4,
+    rock: 10,
     duration: 2.0,
     delay: 1.2,
   },
@@ -115,7 +119,7 @@ const STICKERS: StickerSpec[] = [
     width: 32.4,
     height: 33.9,
     z: Z.lace,
-    drift: 3,
+    rock: 3,
     duration: 2.3,
     delay: 0.7,
   },
