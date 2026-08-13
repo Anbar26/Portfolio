@@ -111,10 +111,22 @@ export default function Home() {
     const pin = heroPinRef.current;
     if (!wrap || !pin) return;
 
+    /*
+     * Where the bloom comes to rest.
+     *
+     * 38vw is a composition for a wide screen: the flower sits right of centre
+     * and the signature reads in the space it leaves. A phone has no such space
+     * — the name is centred there — and the same 38vw carried the bloom clean
+     * off the right edge, cropping it against the viewport. Kept small on
+     * narrow screens so it stays a backdrop rather than a shape jammed into the
+     * corner.
+     */
+    const restX = window.matchMedia("(max-width: 767.98px)").matches ? "8vw" : "38vw";
+
     // Reduced motion: no entrance, no pin, no scrub. Just the finished hero —
     // flower settled where the intro would have left it, signature fully inked.
     if (reducedMotion) {
-      gsap.set(".hero-flower", { scale: 1.15, opacity: 1, x: "38vw", rotate: 35 });
+      gsap.set(".hero-flower", { scale: 1.15, opacity: 1, x: restX, rotate: 35 });
       gsap.set([".hero-content", ".hero-scroll-cue"], { opacity: 1, y: 0 });
       anbarDraw.set(1);
       althafDraw.set(1);
@@ -154,7 +166,7 @@ export default function Home() {
       gsap
         .timeline({ delay: 0.3, onComplete: () => { introDone = true; unlock(); } })
         .to(".hero-flower", { scale: 1, opacity: 1, duration: 1.2, ease: "power2.out" })
-        .to(".hero-flower", { x: "38vw", rotate: 35, scale: 1.15, duration: 1.4, ease: "power2.inOut" })
+        .to(".hero-flower", { x: restX, rotate: 35, scale: 1.15, duration: 1.4, ease: "power2.inOut" })
         .to(
           [".hero-content", ".hero-scroll-cue"],
           { opacity: 1, y: 0, duration: 1.0, ease: "power2.out" },
@@ -442,8 +454,20 @@ export default function Home() {
 
         {/* LEFT LOGO */}
         <div className="absolute left-6 mt-6">
-          <a href="#">
-            <AnbarAlthafLogo variant="nav" className="h-11 w-auto" />
+          {/* py/-my cancel out: the hit area grows to a thumb's worth without
+              the wordmark moving a pixel. */}
+          <a href="#" className="inline-block py-2 -my-2 px-1 -mx-1">
+            {/*
+              Steps up with the viewport because the burger sits centred, not to
+              one side: at h-11 the wordmark is 158px wide and ran 46px underneath
+              the button on a 320px screen. The sizes below keep roughly a finger's
+              clearance at every width, and the full size returns at md where the
+              burger gives way to the pill nav.
+            */}
+            <AnbarAlthafLogo
+              variant="nav"
+              className="h-7 min-[380px]:h-8 min-[430px]:h-9 md:h-11 w-auto"
+            />
           </a>
         </div>
 
@@ -748,7 +772,8 @@ export default function Home() {
             <button
               type="button"
               onClick={copyEmail}
-              className="text-sm font-light tracking-wide text-rose-900/55 hover:text-rose-700 transition-colors cursor-pointer"
+              /* py-3 is for thumbs: the text alone gave a 20px-tall target. */
+              className="py-3 px-1 text-sm font-light tracking-wide text-rose-900/55 hover:text-rose-700 transition-colors cursor-pointer"
             >
               {emailCopied ? "✓ Copied to clipboard!" : EMAIL}
             </button>

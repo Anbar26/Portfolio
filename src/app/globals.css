@@ -624,9 +624,27 @@ body {
   align-self: flex-start;
   font-size: 0.8rem;
   color: rgb(190, 90, 120);
+  transition: color 0.3s, border-color 0.3s;
+  /*
+   * The underline is drawn on an inner span rather than this element, because
+   * the tap target needs to be finger-sized while the rule stays tight under
+   * the words. As a bare link this was 22px tall — fine for a cursor, small for
+   * a thumb.
+   */
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding-block: 0.35rem;
+}
+
+.project-meta-link > span {
   border-bottom: 1px solid rgba(190, 90, 120, 0.4);
   padding-bottom: 2px;
-  transition: color 0.3s, border-color 0.3s;
+  transition: border-color 0.3s;
+}
+
+.project-meta-link:hover > span {
+  border-color: #5c1a2e;
 }
 
 .project-meta-link:hover {

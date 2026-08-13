@@ -214,7 +214,7 @@ export default function ProjectStack() {
               <p className="project-meta-tech">{p.tags.join("  ·  ")}</p>
               {p.href !== "#" && (
                 <a className="project-meta-link" href={p.href} target="_blank" rel="noreferrer">
-                  View project ↗
+                  <span>View project ↗</span>
                 </a>
               )}
             </article>
@@ -265,7 +265,7 @@ export default function ProjectStack() {
                   target="_blank"
                   rel="noreferrer"
                 >
-                  View project ↗
+                  <span>View project ↗</span>
                 </a>
               )}
             </div>
