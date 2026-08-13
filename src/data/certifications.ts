@@ -81,7 +81,7 @@ export const certifications = [
   {
     name: "Kafka Fundamentals",
     issuer: "LearnKartS",
-    logo: "/logos/learnkarts.png",
+    logo: "/logos/learnkarts.webp",
     date: "June 20, 2026",
     status: "Completed",
     description:
@@ -119,7 +119,7 @@ export const certifications = [
   {
     name: "Introduction to Front-End Development",
     issuer: "Meta",
-    logo: "/logos/meta.jpg",
+    logo: "/logos/meta.webp",
     date: "May 13, 2024",
     status: "Completed",
     description:

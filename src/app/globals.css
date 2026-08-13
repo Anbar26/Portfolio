@@ -790,7 +790,19 @@ body {
 
 .cert-card-mark img {
   display: block;
-  max-width: 100%;
+  /*
+   * Once the logo files were cropped to their artwork the widest of them —
+   * Meta, at better than 4:1 — grew to the full width of the panel and sat
+   * flush against both edges, which reads as cramped rather than large.
+   *
+   * The cap is in cqw, against the card, NOT a percentage. The slot is a
+   * centred flex item and so shrinks to its content: a percentage there is
+   * circular, and the browser resolves it by scaling every logo down by the
+   * same fraction rather than only the ones that are too wide. The inner panel
+   * offers about 73cqw of usable width, so this leaves a margin on the very
+   * wide marks and does not come near any of the others.
+   */
+  max-width: 64cqw;
   max-height: 100%;
   width: auto;
   height: auto;
