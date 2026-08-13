@@ -3,10 +3,12 @@
  * as the photo stack — titles, descriptions, tech lists, links and accents are
  * unchanged.
  *
- * `image` is the one addition. The stack is built around a photograph of the
- * work; until one exists for a project the card falls back to that project's own
- * accent wash with its title set on it, so the interaction is complete and
- * dropping a real screenshot in later is a one-line change per project.
+ * `image` is the one addition — the stack is built around a picture of the work.
+ * These are WebP at 1400px wide, which covers a 2x display at the card's real
+ * size; the 1536px PNGs they came from were 2.7MB each, and three of those is
+ * eight megabytes of hero imagery on a page that is mostly scroll animation.
+ * A project without an image falls back to its own accent wash with its title
+ * on it, so the stack behaves identically either way.
  */
 export const projects = [
   {
@@ -16,7 +18,7 @@ export const projects = [
       "A CLI-first platform for red-teaming ML models. Adversarial attacks — FGSM, boundary, model extraction, prompt injection — run locally so the model never leaves your machine, while a FastAPI backend scores results, tracks history, and generates PDF audit reports.",
     tags: ["Python", "FastAPI", "PyTorch", "Next.js"],
     href: "https://github.com/Anbar26/redteam-ai",
-    image: "",
+    image: "/projects/redteam-ai.webp",
     accent: {
       panel: "from-rose-200 via-rose-50 to-white",
       dot: "bg-rose-400",
@@ -36,7 +38,7 @@ export const projects = [
       "A Chrome extension that adds an “Explain Repo” button to any GitHub page. An AI agent explores the codebase locally via Ollama and generates a full onboarding guide in a sidebar — nothing is ever sent to an external API.",
     tags: ["Python", "Ollama", "Chrome Extension"],
     href: "https://github.com/Anbar26/codebase-onboarding-agent",
-    image: "",
+    image: "/projects/codebase-onboarding-agent.webp",
     accent: {
       panel: "from-teal-200 via-teal-50 to-white",
       dot: "bg-teal-400",
@@ -56,7 +58,7 @@ export const projects = [
       "A reinforcement learning system where an agent learns to navigate a maze by trial and error, comparing Monte Carlo, SARSA, and Q-Learning side by side. An interactive web UI trains the agents and visualizes learned policies, trajectories, and convergence metrics in real time.",
     tags: ["Python", "FastAPI", "React", "TypeScript"],
     href: "https://github.com/Anbar26/Maze_Solver",
-    image: "",
+    image: "/projects/maze-solver.webp",
     accent: {
       panel: "from-indigo-200 via-indigo-50 to-white",
       dot: "bg-indigo-400",
